@@ -2,74 +2,65 @@ import datetime
 import glob
 import os
 import shlex
+from typing import Any
+from typing import Dict
+from typing import Optional
+
+from src.utils import joint_kwargs
 
 shquote = shlex.quote
 
+DOCKER_RUN: str = "docker run --user $(id -u):$(id -g) --rm -v "
+
 
 def print_kwargs(**kwargs):
-    print(" ".join([k + " " + v for k, v in kwargs.items()]))
+    print(joint_kwargs(**kwargs))
 
 
-def generate_cabc_cmd(method, **kwargs):
-    cmd = ""
+def generate_cabc_cmd(method: str, **kwargs):
+    cmd: Optional[str] = None
     if method == "knn":
-        cmd = " ".join([param + " " + value for param, value in kwargs.items()])
+        cmd = joint_kwargs(**kwargs)
     return cmd
 
 
-def generate_coevol_cmd(method, mapping, **kwargs):
-    cmd = ""
-    image = " coevol_ubuntu20"
+def generate_coevol_cmd(method: str, mapping: str, **kwargs):
+    cmd: Optional[str] = None
+    image: str = " coevol_ubuntu20"
     if method == "coevol":
-        cmd = (
-            "docker run --user $(id -u):$(id -g) --rm -v "
-            + mapping
-            + image
-            + " coevol "
-            + " ".join([param + " " + value for param, value in kwargs.items()])
-        )
+        cmd = DOCKER_RUN + mapping + image + " coevol " + joint_kwargs(**kwargs)
 
     elif method == "readcoevol":
-        cmd = (
-            "docker run --rm -v "
-            + mapping
-            + image
-            + " readcoevol "
-            + " ".join([param + " " + value for param, value in kwargs.items()])
-        )
+        cmd = DOCKER_RUN + mapping + image + " readcoevol " + joint_kwargs(**kwargs)
 
     else:
-        raise NotImplementedError("ERROR: coevol method %s not implemented" % method)
+        raise NotImplementedError(
+            "ERROR: coevol method %s not implemented yet" % method
+        )
 
     return cmd
 
 
-def generate_datasets_cmd(method, mapping, **kwargs):
-    cmd = ""
-    image = " /opt/datasets "
+def generate_datasets_cmd(method: str, mapping: str, **kwargs):
+    cmd: Optional[str] = None
+    image: str = " /opt/datasets "
     if method == "download":
         cmd = (
             image
             + " download genome "
-            + " ".join([param + " " + value for param, value in kwargs.items()])
+            + joint_kwargs(**kwargs)
             + " --exclude-protein --exclude-rna "
         )
 
     return cmd
 
 
-def generate_blast_cmd(method, mapping, **kwargs):
+def generate_blast_cmd(method: str, mapping: str, **kwargs):
     # information about all command line details --> https://www.ncbi.nlm.nih.gov/books/NBK279684/
-    cmd = ""
-    image = " biocontainers/blast:2.2.31 "
+    cmd: Optional[str] = None
+    image: str = " biocontainers/blast:2.2.31 "
     if method == "makeblastdb":
-        cmd = (
-            "docker run --rm -v "
-            + mapping
-            + image
-            + " makeblastdb "
-            + " ".join([param + " " + value for param, value in kwargs.items()])
-        )
+        cmd = DOCKER_RUN + mapping + image + " makeblastdb " + joint_kwargs(**kwargs)
 
     elif method == "blastn":
         cmd = (
@@ -77,17 +68,11 @@ def generate_blast_cmd(method, mapping, **kwargs):
             + mapping
             + image
             + " blastn "
-            + " ".join([param + " " + value for param, value in kwargs.items()])
+            + joint_kwargs(**kwargs)
         )
 
     elif method == "tblastx":
-        cmd = (
-            "docker run --rm -v "
-            + mapping
-            + image
-            + " tblastx "
-            + " ".join([param + " " + value for param, value in kwargs.items()])
-        )
+        cmd = DOCKER_RUN + mapping + image + " tblastx " + joint_kwargs(**kwargs)
 
     else:
         raise NotImplementedError("ERROR: blast method %s not implemented" % method)
@@ -96,8 +81,8 @@ def generate_blast_cmd(method, mapping, **kwargs):
 
 
 def generate_fasttree_cmd(method, aln_fname, tree_fname, log_fname):
-    cmd = ""
-    image = "/opt/anaconda3/envs/vert/bin/fasttree"
+    cmd: Optional[str] = None
+    image: str = "/opt/anaconda3/envs/vert/bin/fasttree"
 
     if method == "fasttree":
         cmd = "fasttree -nosupport -lg %s 1> %s 2> %s" % (
@@ -110,10 +95,15 @@ def generate_fasttree_cmd(method, aln_fname, tree_fname, log_fname):
 
 
 def generate_alignment_mafft_cmd(
-    method, nthreads, existing_aln_fname, seqs_to_align_fname, aln_fname, log_fname
+    method: str,
+    nthreads: int,
+    existing_aln_fname: str,
+    seqs_to_align_fname: str,
+    aln_fname: str,
+    log_fname: str,
 ):
     # taken from https://github.com/nextstrain/augur/blob/867c5e368e5f621528039fe5d417c85e9e66c0f0/augur/align.py
-    cmd = ""
+    cmd: Optional[str] = None
     if method == "mafft":
         if existing_aln_fname:
             cmd = "mafft --add %s --keeplength --reorder --anysymbol --nomemsave --adjustdirection --thread %d %s 1> %s 2> %s" % (
@@ -138,8 +128,10 @@ def generate_alignment_mafft_cmd(
 
 
 def generate_alignment_prank_cmd(
-    method, codon, seqs_to_align_fname, aln_fname, log_fname
+    method: str, codon: str, seqs_to_align_fname: str, aln_fname: str, log_fname: str
 ):
+    cmd: Optional[str] = None
+
     if codon:
         cmd = "prank -codon -d=%s -o=%s 1>%s" % (
             shquote(seqs_to_align_fname),
@@ -156,7 +148,9 @@ def generate_alignment_prank_cmd(
     return cmd
 
 
-def generate_simu_cmd(method, dict_conf, output_dir, log_fname):
+def generate_simu_cmd(
+    method: str, dict_conf: Dict[str, Any], output_dir: str, log_fname: str
+):
     lfp_path = "/opt/LikelihoodFreePhylogenetics/data/LFP"
     codemlM7M8_path = "/opt/LikelihoodFreePhylogenetics/data/codemlM7M8"
 
@@ -167,7 +161,8 @@ def generate_simu_cmd(method, dict_conf, output_dir, log_fname):
         + "-"
         + dict_conf["mark"]
     )
-    cmd = ""
+    cmd: Optional[str] = None
+
     os.makedirs(output_dir, exist_ok=True)
     if not os.path.exists(dict_conf["aln_path"]):
         print("path to alignment doesnt exist %s" % dict_conf["aln_path"])
@@ -235,13 +230,17 @@ def generate_simu_cmd(method, dict_conf, output_dir, log_fname):
         cmd = " ".join(
             [codemlM7M8_path] + [dict_conf["args"]] + [output_dir + filename + ".conf"]
         )
-
+    if cmd is None:
+        print("Something wrong with cmd")
+        raise RuntimeError
     cmd = cmd + " 2>" + output_dir + log_fname
 
     return cmd
 
 
-def generate_codeml_cmd(method, dict_conf, output_dir, codeml_path):
+def generate_codeml_cmd(
+    method: str, dict_conf: Dict[str, Any], output_dir: str, codeml_path: str
+):
 
     cmd = ""
     keys = [
@@ -302,8 +301,12 @@ def generate_codeml_cmd(method, dict_conf, output_dir, codeml_path):
         }
     )
 
-    filename_conf = dict_conf["mark"] + ".conf"
-    os.makedirs(output_dir, exist_ok=True)
+    filename_conf: str = dict_conf["mark"] + ".conf"
+    try:
+        os.makedirs(output_dir, exist_ok=True)
+    except Exception as e:
+        print("Something wrong when creating dir %s" % output_dir)
+        raise RuntimeError
 
     if not os.path.exists(dict_conf["seqfile"]):
         print("path to alignment doesnt exist %s" % dict_conf["seqfile"])
@@ -322,12 +325,15 @@ def generate_codeml_cmd(method, dict_conf, output_dir, codeml_path):
                     print(k)
         cmd = " ".join([codeml_path, filename_conf])
 
+    if cmd is None:
+        print("Something wrong with cmd")
+        raise RuntimeError
+
     return cmd
 
 
-def w_codeml(dict_conf, key):
+def w_codeml(dict_conf: Dict[str, Any], key):
     if key in dict_conf:
-
         v = dict_conf[key]
         if type(v) in (float, int):
             v = str(v)
@@ -335,7 +341,7 @@ def w_codeml(dict_conf, key):
     return None
 
 
-def get_run_stamp(output_dir):
+def get_run_stamp(output_dir: str) -> str:
     return (
         output_dir + "run-" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M") + "/"
     )
