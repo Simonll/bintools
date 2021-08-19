@@ -1,0 +1,45 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.4.0
+    hooks:
+    -   id: check-yaml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+-   repo: https://github.com/psf/black
+    rev: 20.8b1
+    hooks:
+    -   id: black
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v0.812'  # Use the sha / tag you want to point at
+    hooks:
+    -   id: mypy
+-   repo: https://github.com/pycqa/isort
+    rev: 5.8.0
+    hooks:
+    -   id: isort
+        name: isort (python)
+        args: [--sl]
+    -   id: isort
+        name: isort (cython)
+        types: [cython]
+    -   id: isort
+        name: isort (pyi)
+        types: [pyi]
+
+-  repo: https://github.com/kynan/nbstripout
+   rev: 0.3.9
+   hooks:
+   -    id: nbstripout
+#https://github.com/bmorcos/pre-commit-hooks-cpp
+-   repo: https://github.com/bmorcos/pre-commit-hooks-cpp
+    rev: 9a5aa38207bf557961110d6a4f7e3a9d352911f9
+    hooks:
+    -   id: clang-format
+    -   id: cpplint
+        exclude: sources/bayescode/*
+    #   id: cppcheck
+-   repo: https://github.com/hadialqattan/pycln
+    rev: v0.0.1-beta.3 # Possible releases: https://github.com/hadialqattan/pycln/tags
+    hooks:
+    -   id: pycln
+        args: [--config=pyproject.toml]
