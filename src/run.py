@@ -17,21 +17,24 @@ def print_kwargs(**kwargs):
     print(joint_kwargs(**kwargs))
 
 
-def generate_cabc_cmd(method: str, **kwargs):
+def generate_cabc_cmd(method: str, **kwargs) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "knn":
         cmd = joint_kwargs(**kwargs)
     return cmd
 
 
-def generate_coevol_cmd(method: str, mapping: str, **kwargs):
+def generate_coevol_cmd(
+    method: str, mapping: str, image: str = "coevol_ubuntu20", **kwargs
+) -> Optional[str]:
     cmd: Optional[str] = None
-    image: str = " coevol_ubuntu20"
     if method == "coevol":
-        cmd = DOCKER_RUN + mapping + image + " coevol " + joint_kwargs(**kwargs)
+        cmd = " ".join([DOCKER_RUN, mapping, image, "coevol", joint_kwargs(**kwargs)])
 
     elif method == "readcoevol":
-        cmd = DOCKER_RUN + mapping + image + " readcoevol " + joint_kwargs(**kwargs)
+        cmd = " ".join(
+            [DOCKER_RUN, mapping, image, "readcoevol", joint_kwargs(**kwargs)]
+        )
 
     else:
         raise NotImplementedError(
@@ -41,38 +44,69 @@ def generate_coevol_cmd(method: str, mapping: str, **kwargs):
     return cmd
 
 
-def generate_datasets_cmd(method: str, mapping: str, **kwargs):
+def generate_datasets_cmd(
+    method: str, mapping: str, image: str = "/opt/datasets", **kwargs
+) -> Optional[str]:
     cmd: Optional[str] = None
-    image: str = " /opt/datasets "
-    if method == "download":
-        cmd = (
-            image
-            + " download genome "
-            + joint_kwargs(**kwargs)
-            + " --exclude-protein --exclude-rna "
+    if method == "download genome":
+        cmd = " ".join(
+            [
+                image,
+                "download genome",
+                joint_kwargs(**kwargs),
+                "--exclude-protein",
+                "--exclude-rna",
+            ]
+        )
+
+    if method == "summary":
+        cmd = " ".join(
+            [
+                image,
+                "summary genome",
+                joint_kwargs(**kwargs),
+            ]
+        )
+
+    else:
+        raise NotImplementedError(
+            "ERROR: datasets method %s not implemented yet" % method
         )
 
     return cmd
 
 
-def generate_blast_cmd(method: str, mapping: str, **kwargs):
+def generate_blat_cmd(
+    method,
+    mapping,
+    image: str = "quay.io/biocontainers/ucsc-blat:377--h0b8a92a_3",
+    **kwargs
+):
+    # information about all command line details -->http://genome.ucsc.edu/goldenPath/help/blatSpec.html
+    cmd: Optional[str] = None
+    if method == "blat":
+        cmd = " ".join([DOCKER_RUN, mapping, image, "blat", joint_kwargs(**kwargs)])
+    else:
+        raise NotImplementedError("ERROR: blast method %s not implemented" % method)
+
+    return cmd
+
+
+def generate_blast_cmd(
+    method: str, mapping: str, image: str = "biocontainers/blast:2.2.31", **kwargs
+):
     # information about all command line details --> https://www.ncbi.nlm.nih.gov/books/NBK279684/
     cmd: Optional[str] = None
-    image: str = " biocontainers/blast:2.2.31 "
     if method == "makeblastdb":
-        cmd = DOCKER_RUN + mapping + image + " makeblastdb " + joint_kwargs(**kwargs)
-
-    elif method == "blastn":
-        cmd = (
-            "docker run --rm -v "
-            + mapping
-            + image
-            + " blastn "
-            + joint_kwargs(**kwargs)
+        cmd = " ".join(
+            [DOCKER_RUN, mapping, image, "makeblastdb", joint_kwargs(**kwargs)]
         )
 
+    elif method == "blastn":
+        cmd = " ".join([DOCKER_RUN, mapping, image, "blastn", joint_kwargs(**kwargs)])
+
     elif method == "tblastx":
-        cmd = DOCKER_RUN + mapping + image + " tblastx " + joint_kwargs(**kwargs)
+        cmd = " ".join([DOCKER_RUN, mapping, image, "blastx", joint_kwargs(**kwargs)])
 
     else:
         raise NotImplementedError("ERROR: blast method %s not implemented" % method)
@@ -80,9 +114,14 @@ def generate_blast_cmd(method: str, mapping: str, **kwargs):
     return cmd
 
 
-def generate_fasttree_cmd(method, aln_fname, tree_fname, log_fname):
+def generate_fasttree_cmd(
+    method,
+    aln_fname,
+    tree_fname,
+    log_fname,
+    image: str = "/opt/anaconda3/envs/vert/bin/fasttree",
+):
     cmd: Optional[str] = None
-    image: str = "/opt/anaconda3/envs/vert/bin/fasttree"
 
     if method == "fasttree":
         cmd = "fasttree -nosupport -lg %s 1> %s 2> %s" % (
@@ -149,19 +188,21 @@ def generate_alignment_prank_cmd(
 
 
 def generate_simu_cmd(
-    method: str, dict_conf: Dict[str, Any], output_dir: str, log_fname: str
-):
-    lfp_path = "/opt/LikelihoodFreePhylogenetics/data/LFP"
-    codemlM7M8_path = "/opt/LikelihoodFreePhylogenetics/data/codemlM7M8"
-
-    filename = (
+    method: str,
+    dict_conf: Dict[str, Any],
+    output_dir: str,
+    log_fname: str,
+    lfp_path: str = "/opt/LikelihoodFreePhylogenetics/data/LFP",
+    codemlM7M8_path: str = "/opt/LikelihoodFreePhylogenetics/data/codemlM7M8",
+) -> Optional[str]:
+    cmd: Optional[str] = None
+    filename: str = (
         dict_conf["geneID"].split(".")[0]
         + "-"
         + dict_conf["model"]
         + "-"
         + dict_conf["mark"]
     )
-    cmd: Optional[str] = None
 
     os.makedirs(output_dir, exist_ok=True)
     if not os.path.exists(dict_conf["aln_path"]):
