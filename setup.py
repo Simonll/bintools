@@ -11,7 +11,7 @@
 from setuptools import find_packages
 from setuptools import setup
 
-NAME = "run-utils"
+NAME = "bin-utils"
 VERSION = "1.0.0"
 # To install the library, run the following
 #
@@ -25,9 +25,9 @@ REQUIRES = ["numpy>=1.18.1", "pandas>=1.0.3"]
 setup(
     name=NAME,
     version=VERSION,
-    description="simon laurin-lemay run-utils",
+    description="simon laurin-lemay bin-utils",
     author_email="evol.simon@gmail.com",
-    url="https://github.com/Simonll/run/src/",
+    url="https://github.com/Simonll/bin/src/",
     install_requires=REQUIRES,
     packages=find_packages(where="src"),
     include_package_data=True,
