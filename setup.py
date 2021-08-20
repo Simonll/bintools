@@ -11,7 +11,7 @@
 from setuptools import find_packages
 from setuptools import setup
 
-NAME = "bin-utils"
+NAME = "bintools"
 VERSION = "1.0.0"
 # To install the library, run the following
 #
@@ -25,7 +25,7 @@ REQUIRES = ["numpy>=1.18.1", "pandas>=1.0.3"]
 setup(
     name=NAME,
     version=VERSION,
-    description="simon laurin-lemay bin-utils",
+    description="simon laurin-lemay bintools",
     author_email="evol.simon@gmail.com",
     url="https://github.com/Simonll/bin/src/",
     install_requires=REQUIRES,
