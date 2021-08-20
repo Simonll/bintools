@@ -10,6 +10,7 @@ from rpy2.robjects import r
 from rpy2.robjects.packages import importr
 
 importr("abc")
+
 from scipy.spatial import distance
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import FunctionTransformer
@@ -73,22 +74,22 @@ def wrapper_abc_r_package(
         r.assign("transf", transf)
         r.assign("hcorr", hcorr)
         r.assign("kernel", kernel)
-        r.assign("refTab_param_r", refTab_param_r)
-        r.assign("refTab_ss_r", refTab_ss_r)
-        r.assign("true_ss_r", true_ss_r)
+        r.assign("simu_space_param", refTab_param_r)
+        r.assign("simu_space_ss", refTab_ss_r)
+        r.assign("true_ss", true_ss_r)
         r("print(true_ss_r[1:10])")
 
         if method == "neuralnet":
             try:
                 r(
-                    "abc_r_knn <- abc(target = true_ss_r, param = refTab_param_r, sumstat = refTab_ss_r, tol = 1, method = method, transf = transf, hcorr = hcorr, kernel = kernel, sizenet = 1)$adj.values"
+                    "abc_r_knn <- abc(target = true_ss, param = simu_space_param, sumstat = simu_pace_ss, tol = 1, method = method, transf = transf, hcorr = hcorr, kernel = kernel, sizenet = 1)$adj.values"
                 )
             except Exception as e:
                 print("Something wrong %s" % str(e))
         elif method == "loclinear":
             try:
                 r(
-                    "abc_r_knn <- abc(target = true_ss_r, param = refTab_param_r, sumstat = refTab_ss_r, tol = 1, method = method, transf = transf, hcorr = hcorr, kernel = kernel)$adj.values"
+                    "abc_r_knn <- abc(target = true_ss, param = simu_space_param, sumstat = simu_pace_ss, tol = 1, method = method, transf = transf, hcorr = hcorr, kernel = kernel)$adj.values"
                 )
             except Exception as e:
                 print("Something wrong %s" % str(e))
