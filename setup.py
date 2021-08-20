@@ -3,7 +3,7 @@
 """
     Execution Framework
 
-    bin-utils
+    bintools
 
     Contact: evol.simon@gmail.com
 """
