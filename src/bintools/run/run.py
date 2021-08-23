@@ -5,7 +5,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-from src.bintools.run.utils import joint_kwargs
+from bintools.run.utils import joint_kwargs
 
 shquote = shlex.quote
 

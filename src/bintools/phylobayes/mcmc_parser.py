@@ -8,7 +8,7 @@ from typing import Union
 
 import numpy as np
 
-from src.utils.utils import check_path
+from utils.utils import check_path
 
 
 class posterior:
@@ -193,6 +193,7 @@ class posterior_M0_GTR(posterior):
             lines = iter(file_handler.readlines())
             for line in takewhile(lambda x: x is not None, lines):
                 cls.list_of_trees += [line.strip()]
+
                 line = next(lines)
                 cls.list_of_phi += [
                     np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
