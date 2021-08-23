@@ -1,5 +1,6 @@
 import abc
 from io import TextIOWrapper
+from itertools import takewhile
 from pathlib import Path
 from typing import Dict
 from typing import List
@@ -34,38 +35,6 @@ class posterior:
         draw values
         """
         raise RuntimeError()
-
-
-# class read_posterior_samples_M0M7M8_GTR(posterior):
-#     def __init__(self, chain_path: str, burnin: int):
-#         super().__init__(chain_path=chain_path, burnin=burnin)
-#         self.list_of_trees: List[str] = []
-#         self.list_of_phi: List[List[float]] = []
-#         self.list_of_rho: List[List[float]] = []
-#         self.list_of_omega: List[float] = []
-#         self.read_chain()
-
-#     def read_chain(self):
-#         with open(self.chain_path, "r") as hl:
-
-#             lines = iter(hl.readlines())
-#             for line in takewhile(lambda x: x is not None, lines):
-
-#                 self.list_of_trees.append(line.strip())
-
-#                 line = next(lines)
-#                 self.list_of_phi.append(
-#                     np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
-#                 )
-#                 line = next(lines)
-#                 self.list_of_rho.append(
-#                     np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
-#                 )
-
-#                 line = next(lines)
-#                 self.list_of_omega.append(
-#                     np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
-#                 )
 
 
 class posterior_M0_GTR(posterior):
@@ -213,3 +182,28 @@ class posterior_M0_GTR(posterior):
         except Exception as e:
             print("something wrong when writing paramter values %s" % str(e))
             return False
+
+    @classmethod
+    def read(cls, input_file: Path):
+        if not check_path(input_file):
+            raise RuntimeError
+
+        with open(str(input_file), "r") as file_handler:
+
+            lines = iter(file_handler.readlines())
+            for line in takewhile(lambda x: x is not None, lines):
+                cls.list_of_trees += [line.strip()]
+                line = next(lines)
+                cls.list_of_phi += [
+                    np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
+                ]
+
+                line = next(lines)
+                cls.list_of_rho += [
+                    np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
+                ]
+
+                line = next(lines)
+                cls.list_of_omega += [
+                    np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
+                ]
