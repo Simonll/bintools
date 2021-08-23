@@ -33,19 +33,19 @@ def prior_M7M8(N: int, p_0: float, p: float, q: float, l: float) -> Dict[int, fl
     generates site-heterogeneous omega values from beta distribution and exponential
     distribution when p_0 == 1, this corresponds to M7 model from CodeML
     """
-    dict_site: Dict[int, float] = {}
+    dict_of_omega: Dict[int, float] = {}
     for i in range(N):
         u_float: float = sc.stats.uniform(0, 1).rvs()
         if u_float > p_0:
-            dict_site[i + 1] = sc.stats.expon(l).rvs()
+            dict_of_omega[i + 1] = sc.stats.expon(l).rvs()
         else:
-            dict_site[i + 1] = sc.stats.beta(p, q).rvs()
-    return dict_site
+            dict_of_omega[i + 1] = sc.stats.beta(p, q).rvs()
+    return dict_of_omega
 
 
 def prior_M7M8_fix(N: int, value: float) -> Dict[int, float]:
     """
     generates site specific omega values with one value
     """
-    dict_site: Dict[int, float] = {i + 1: value for i in range(N)}
-    return dict_site
+    dict_of_omega: Dict[int, float] = {i + 1: value for i in range(N)}
+    return dict_of_omega
