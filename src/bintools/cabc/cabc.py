@@ -14,8 +14,8 @@ importr("abc")
 from scipy.spatial import distance
 from sklearn.base import BaseEstimator
 
-from src.bintools.cabc.utils import transform
-from src.bintools.run.utils import check_path
+from bintools.cabc.utils import transform
+from utils.utils import check_path
 
 
 def read(input_file: str) -> Optional[List[str]]:
