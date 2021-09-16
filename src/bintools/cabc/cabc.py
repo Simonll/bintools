@@ -4,7 +4,6 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 from rpy2.robjects import r
 from rpy2.robjects.packages import importr
@@ -62,19 +61,19 @@ def wrapper_abc_r_package(
         r.assign("kernel", kernel)
         r.assign(
             "simu_space_param",
-            ro.conversion.py2rpy(
+            r.conversion.py2rpy(
                 model_preprocessing_params.transform(df_simu_space[list_of_params])
             ),
         )
         r.assign(
             "simu_space_ss",
-            ro.conversion.py2rpy(
+            r.conversion.py2rpy(
                 model_preprocessing_ss.transform(df_simu_space[list_of_ss])
             ),
         )
         r.assign(
             "true_ss",
-            ro.conversion.py2rpy(
+            r.conversion.py2rpy(
                 model_preprocessing_ss.transform(df_true_ss.loc[:, list_of_ss])
             ),
         )

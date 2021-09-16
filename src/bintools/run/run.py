@@ -19,8 +19,28 @@ def generate_cabc_cmd(method: str, **kwargs) -> Optional[str]:
     return cmd
 
 
+def generate_pb_mpi_cmd(
+    method: str, mapping: str, image: str = "ubuntu20.04/pbmpi", **kwargs
+) -> Optional[str]:
+    cmd: Optional[str] = None
+    if method == "pb_mpi":
+        cmd = " ".join([DOCKER_RUN, mapping, image, "pb_mpi", joint_kwargs(**kwargs)])
+
+    elif method == "readpb_mpi":
+        cmd = " ".join(
+            [DOCKER_RUN, mapping, image, "readpb_mpi", joint_kwargs(**kwargs)]
+        )
+
+    else:
+        raise NotImplementedError(
+            "ERROR: readpb_mpi method %s not implemented yet" % method
+        )
+
+    return cmd
+
+
 def generate_coevol_cmd(
-    method: str, mapping: str, image: str = "coevol_ubuntu20", **kwargs
+    method: str, mapping: str, image: str = "ubuntu20.04/coevol", **kwargs
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "coevol":
