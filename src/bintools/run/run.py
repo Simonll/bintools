@@ -24,7 +24,30 @@ def generate_pb_mpi_cmd(
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "pb_mpi":
-        cmd = " ".join([DOCKER_RUN, mapping, image, "pb_mpi", joint_kwargs(**kwargs)])
+        np: Optional[int] = os.cpu_count()
+        if np is None:
+            np = 1
+        chainname: str = ""
+        if "np" in kwargs:
+            np = kwargs["np"]
+            del kwargs["np"]
+
+        if "chainname" in kwargs:
+            chainname = kwargs["chainname"]
+            del kwargs["chainname"]
+
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "mpirun -np",
+                str(np),
+                "pb_mpi",
+                joint_kwargs(**kwargs),
+                chainname,
+            ]
+        )
 
     elif method == "readpb_mpi":
         cmd = " ".join(
