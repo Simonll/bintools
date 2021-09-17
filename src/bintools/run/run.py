@@ -27,14 +27,17 @@ def generate_pb_mpi_cmd(
         np: Optional[int] = os.cpu_count()
         if np is None:
             np = 1
-        chainname: str = ""
-        if "np" in kwargs:
-            np = kwargs["np"]
-            del kwargs["np"]
 
-        if "chainname" in kwargs:
-            chainname = kwargs["chainname"]
-            del kwargs["chainname"]
+        if "-np" in kwargs:
+            print("-chainname %s" % kwargs["-np"])
+            np = kwargs["-np"]
+            del kwargs["-np"]
+
+        chainname: str = ""
+        if "-chainname" in kwargs:
+            print("-chainname %s" % kwargs["-chainname"])
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
 
         cmd = " ".join(
             [

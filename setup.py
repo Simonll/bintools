@@ -32,4 +32,5 @@ setup(
     packages=find_packages(where="src"),
     include_package_data=True,
     package_dir={"": "src"},
+    # test_suite = "test",
 )
