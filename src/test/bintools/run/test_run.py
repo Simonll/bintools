@@ -32,6 +32,7 @@ class TestRun(unittest.TestCase):
         cmd: Optional[str] = generate_pb_mpi_cmd(
             method="pb_mpi", mapping="/tmp/data/:/data/", **kwargs
         )
+        print(cmd)
 
 
 if __name__ == "__main__":
