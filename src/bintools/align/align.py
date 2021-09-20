@@ -40,6 +40,12 @@ class ali:
     def __iter__(self) -> Iterator[Any]:
         yield self.dict_of_seq.items()
 
+    def get_biopython_align(self) -> MultipleSeqAlignment:
+        records: List[SeqRecord] = []
+        for k, v in self.dict_of_seq.items():
+            records += [SeqRecord(MutableSeq("".join([j for i, j in v.items()])), id=k)]
+        return MultipleSeqAlignment(records=records)
+
 
 def sub_sample(seq: str, start: int, stop: int, step: int) -> str:
     return "".join([seq[l] for l in range(start, stop, step)])
@@ -101,13 +107,6 @@ def write_phylip(filename: str, align: MultipleSeqAlignment):
     except Exception as e:
         print("Something wrong writing phylip from MultipleSeqAlignment %s" % str(e))
         return False
-
-
-def dict_ali_to_align(dict_ali) -> MultipleSeqAlignment:
-    records: List[SeqRecord] = []
-    for k, v in dict_ali["alignment"].items():
-        records += [SeqRecord(MutableSeq("".join([j for i, j in v.items()])), id=k)]
-    return MultipleSeqAlignment(records=records)
 
 
 def read_ali(fh: IO[Any]):
