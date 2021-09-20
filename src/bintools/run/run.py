@@ -29,13 +29,11 @@ def generate_pb_mpi_cmd(
             np = 1
 
         if "-np" in kwargs:
-            print("-np %s" % kwargs["-np"])
             np = kwargs["-np"]
             del kwargs["-np"]
 
         chainname: str = ""
         if "-chainname" in kwargs:
-            print("-chainname %s" % kwargs["-chainname"])
             chainname = kwargs["-chainname"]
             del kwargs["-chainname"]
 
