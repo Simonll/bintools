@@ -20,14 +20,14 @@ VERSION = "1.0.0"
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 
-REQUIRES = ["numpy>=1.18.1", "pandas>=1.0.3", "rpy2>=3.4.5"]
+REQUIRES = ["numpy>=1.18.1", "pandas>=1.0.3"]
 
 setup(
     name=NAME,
     version=VERSION,
     description="simon laurin-lemay bintools",
     author_email="evol.simon@gmail.com",
-    url="https://github.com/Simonll/bin/src/",
+    url="https://github.com/Simonll/bintools/src/",
     install_requires=REQUIRES,
     packages=find_packages(where="src"),
     include_package_data=True,
