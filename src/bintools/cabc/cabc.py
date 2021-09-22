@@ -55,6 +55,22 @@ def wrapper_abc_r_package(
         df_simu_space.sort_values(by="metric", inplace=True)
         df_simu_space.reset_index(inplace=True)
         df_simu_space = df_simu_space.loc[:knn, :]
+        df_simu_space.reset_index().to_feather("/data/df_simu_space.feather")
+        pd.DataFrame(
+            data=model_preprocessing_params.transform(
+                df_simu_space[list_of_params], columns=list_of_params
+            )
+        ).to_feather("/data/df_simu_space_params.feather")
+        pd.DataFrame(
+            data=model_preprocessing_ss.transform(
+                df_simu_space[list_of_ss], columns=list_of_ss
+            )
+        ).to_feather("/data/df_simu_space_ss.feather")
+        pd.DataFrame(
+            data=model_preprocessing_ss.transform(
+                df_true_ss[list_of_ss], columns=list_of_ss
+            )
+        ).to_feather("/data/df_true_ss.feather")
         r.assign("method", method)
         r.assign("transf", transf)
         r.assign("hcorr", hcorr)
@@ -77,7 +93,6 @@ def wrapper_abc_r_package(
                 model_preprocessing_ss.transform(df_true_ss.loc[:, list_of_ss])
             ),
         )
-        r("print(true_ss_r[1:10])")
 
         if method == "neuralnet":
             try:
@@ -249,6 +264,11 @@ def get_closer_to_true_post(
         raise RuntimeError
 
     assert df_true_ss.shape[1] == df_simu_space[list_of_ss].shape[1]
+
+    df_simu_space.reset_index().to_feather(
+        path="/tmp/df_simu_space_params.feather", version=2
+    )
+    df_true_ss.reset_index().to_feather(path="/tmp/df_true_ss.feather", version=2)
 
     df_knn: Optional[pd.DataFrame] = wrapper_abc_r_package(
         df_simu_space=df_simu_space,

@@ -7,15 +7,31 @@ from typing import Optional
 
 from bintools.run.utils import joint_kwargs
 
-shquote = shlex.quote
-
 DOCKER_RUN: str = "docker run --user $(id -u):$(id -g) --rm -v "
 
 
-def generate_cabc_cmd(method: str, **kwargs) -> Optional[str]:
+def generate_abc_cmd(
+    method: str, mapping: str, image: str = "r-base3.6.3/abc", **kwargs
+) -> Optional[str]:
     cmd: Optional[str] = None
-    if method == "knn":
-        cmd = joint_kwargs(**kwargs)
+    if method == "abc":
+        keys = [
+            "--reg_model",
+            "--hcorr",
+            "--kernel",
+            "--transf",
+            "--df_true_ss",
+            "--df_simu_space_knn_params",
+            "--df_simu_space_knn_ss",
+        ]
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                joint_kwargs(**kwargs),
+            ]
+        )
     return cmd
 
 
@@ -164,9 +180,9 @@ def generate_fasttree_cmd(
 
     if method == "fasttree":
         cmd = "fasttree -nosupport -lg %s 1> %s 2> %s" % (
-            shquote(aln_fname),
-            shquote(tree_fname),
-            shquote(log_fname),
+            shlex.quote(aln_fname),
+            shlex.quote(tree_fname),
+            shlex.quote(log_fname),
         )
 
     return cmd
@@ -185,18 +201,18 @@ def generate_alignment_mafft_cmd(
     if method == "mafft":
         if existing_aln_fname:
             cmd = "mafft --add %s --keeplength --reorder --anysymbol --nomemsave --adjustdirection --thread %d %s 1> %s 2> %s" % (
-                shquote(seqs_to_align_fname),
+                shlex.quote(seqs_to_align_fname),
                 nthreads,
-                shquote(existing_aln_fname),
-                shquote(aln_fname),
-                shquote(log_fname),
+                shlex.quote(existing_aln_fname),
+                shlex.quote(aln_fname),
+                shlex.quote(log_fname),
             )
         else:
             cmd = "mafft --reorder --anysymbol --nomemsave --adjustdirection --thread %d %s 1> %s 2> %s" % (
                 nthreads,
-                shquote(seqs_to_align_fname),
-                shquote(aln_fname),
-                shquote(log_fname),
+                shlex.quote(seqs_to_align_fname),
+                shlex.quote(aln_fname),
+                shlex.quote(log_fname),
             )
     #        print("\nusing mafft to align via:\n\t" + cmd +
     #            " \n\n\tKatoh et al, Nucleic Acid Research, vol 30, issue 14"
@@ -212,16 +228,16 @@ def generate_alignment_prank_cmd(
 
     if codon:
         cmd = "prank -codon -d=%s -o=%s 1>%s" % (
-            shquote(seqs_to_align_fname),
-            shquote(aln_fname),
-            shquote(log_fname),
+            shlex.quote(seqs_to_align_fname),
+            shlex.quote(aln_fname),
+            shlex.quote(log_fname),
         )
 
     else:
         cmd = "prank -codon -d=%s -o=%s 1>%s" % (
-            shquote(seqs_to_align_fname),
-            shquote(aln_fname),
-            shquote(log_fname),
+            shlex.quote(seqs_to_align_fname),
+            shlex.quote(aln_fname),
+            shlex.quote(log_fname),
         )
     return cmd
 
