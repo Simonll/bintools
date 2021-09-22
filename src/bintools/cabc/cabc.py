@@ -4,12 +4,6 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from rpy2.robjects import pandas2ri
-from rpy2.robjects import r
-from rpy2.robjects.packages import importr
-
-importr("abc")
-
 from scipy.spatial import distance
 from sklearn.base import BaseEstimator
 
@@ -29,91 +23,49 @@ def read(input_file: str) -> Optional[List[str]]:
         return None
 
 
-def wrapper_abc_r_package(
+def prepare_files_for_abc_r_package(
     df_simu_space: pd.DataFrame,
     df_true_ss: pd.DataFrame,
-    method: str,
     knn: int,
-    transf: str,
-    hcorr: str,
-    kernel: str,
     list_of_ss: List[str],
     list_of_params: List[str],
     model_preprocessing_ss: BaseEstimator,
     model_preprocessing_params: BaseEstimator,
-) -> Optional[pd.DataFrame]:
+    output: str,
+) -> bool:
 
-    df_knn: Optional[pd.DataFrame] = None
+    df_simu_space["metric"] = distance.cdist(
+        model_preprocessing_ss.transform(
+            df_simu_space[list_of_ss],
+        ),
+        model_preprocessing_ss.transform(df_true_ss),
+        lambda u, v: ((u - v) ** 2).sum(),
+    )
 
-    if method == "neuralnet" or method == "loclinear":
-        df_simu_space["metric"] = distance.cdist(
-            model_preprocessing_ss.transform(df_simu_space[list_of_ss]),
-            model_preprocessing_ss.transform(df_true_ss[list_of_ss]),
-            lambda u, v: ((u - v) ** 2).sum(),
-        )
-        pandas2ri.activate()
-        df_simu_space.sort_values(by="metric", inplace=True)
-        df_simu_space.reset_index(inplace=True)
-        df_simu_space = df_simu_space.loc[:knn, :]
-        df_simu_space.reset_index().to_feather("/data/df_simu_space.feather")
+    df_simu_space.sort_values(by="metric", inplace=True)
+    df_simu_space.reset_index(inplace=True)
+    df_simu_space = df_simu_space.iloc[:knn, :]
+    assert df_simu_space.shape[0] == knn
+    try:
         pd.DataFrame(
-            data=model_preprocessing_params.transform(
-                df_simu_space[list_of_params], columns=list_of_params
-            )
-        ).to_feather("/data/df_simu_space_params.feather")
-        pd.DataFrame(
-            data=model_preprocessing_ss.transform(
-                df_simu_space[list_of_ss], columns=list_of_ss
-            )
-        ).to_feather("/data/df_simu_space_ss.feather")
-        pd.DataFrame(
-            data=model_preprocessing_ss.transform(
-                df_true_ss[list_of_ss], columns=list_of_ss
-            )
-        ).to_feather("/data/df_true_ss.feather")
-        r.assign("method", method)
-        r.assign("transf", transf)
-        r.assign("hcorr", hcorr)
-        r.assign("kernel", kernel)
-        r.assign(
-            "simu_space_param",
-            r.conversion.py2rpy(
-                model_preprocessing_params.transform(df_simu_space[list_of_params])
-            ),
-        )
-        r.assign(
-            "simu_space_ss",
-            r.conversion.py2rpy(
-                model_preprocessing_ss.transform(df_simu_space[list_of_ss])
-            ),
-        )
-        r.assign(
-            "true_ss",
-            r.conversion.py2rpy(
-                model_preprocessing_ss.transform(df_true_ss.loc[:, list_of_ss])
-            ),
-        )
-
-        if method == "neuralnet":
-            try:
-                r(
-                    "df_knn <- abc(target = true_ss, param = simu_space_param, sumstat = simu_pace_ss, tol = 1, method = method, transf = transf, hcorr = hcorr, kernel = kernel, sizenet = 1)$adj.values"
-                )
-            except Exception as e:
-                print("Something wrong %s" % str(e))
-        elif method == "loclinear":
-            try:
-                r(
-                    "df_knn <- abc(target = true_ss, param = simu_space_param, sumstat = simu_pace_ss, tol = 1, method = method, transf = transf, hcorr = hcorr, kernel = kernel)$adj.values"
-                )
-            except Exception as e:
-                print("Something wrong %s" % str(e))
-
-        df_knn = pd.DataFrame(
-            model_preprocessing_params.inverse_transform(r.df_knn),
+            data=model_preprocessing_params.transform(df_simu_space[list_of_params]),
             columns=list_of_params,
-        )
-    return df_knn
+        ).to_feather(output + "/df_simu_space_knn_params.feather")
+        pd.DataFrame(
+            data=model_preprocessing_ss.transform(df_simu_space[list_of_ss]),
+            columns=list_of_ss,
+        ).to_feather(output + "/df_simu_space_knn_ss.feather")
+        pd.DataFrame(
+            data=model_preprocessing_ss.transform(df_true_ss[list_of_ss]),
+            columns=list_of_ss,
+        ).reset_index()[list_of_ss].to_feather(output + "/df_true_ss.feather")
+
+    except Exception as e:
+        print("Something wrong saving files for abc r package %s" % str(e))
+
+        return False
+
+    return True
 
 
 def generate_output_filename(
@@ -201,24 +153,6 @@ def get_closer_to_true_post(
     print(list_of_params)
     print(list_of_ss)
 
-    method: str = reg_model
-    transf: str = "none"
-    hcorr: str = "TRUE"
-    kernel: str = "epanechnikov"
-
-    output_: Optional[str] = generate_output_filename(
-        method=method,
-        output=output,
-        preprocessing_ss=preprocessing_ss,
-        preprocessing_params=preprocessing_params,
-        hcorr=hcorr,
-        kernel=kernel,
-    )
-
-    if output_ is None:
-        print("Something wrong with %s" % output_)
-        raise RuntimeError
-
     df_simu_space: pd.DataFrame = pd.read_csv(
         simu_space_file, sep="\t", index_col=False
     )
@@ -244,7 +178,7 @@ def get_closer_to_true_post(
     )
     print("realdata table ", np.shape(df_true_ss))
     random_row: int = np.random.randint(0, df_true_ss.shape[0] - 1)
-    df_realdata = df_true_ss.iloc[random_row : random_row + 1, :]
+    df_true_ss = df_true_ss.iloc[random_row : random_row + 1, :]
     print("realdata choosing randomly one row ", df_true_ss.shape)
 
     model_preprocessing_ss: Optional[BaseEstimator] = transform(
@@ -265,33 +199,15 @@ def get_closer_to_true_post(
 
     assert df_true_ss.shape[1] == df_simu_space[list_of_ss].shape[1]
 
-    df_simu_space.reset_index().to_feather(
-        path="/tmp/df_simu_space_params.feather", version=2
-    )
-    df_true_ss.reset_index().to_feather(path="/tmp/df_true_ss.feather", version=2)
-
-    df_knn: Optional[pd.DataFrame] = wrapper_abc_r_package(
+    prepare_files_for_abc_r_package(
         df_simu_space=df_simu_space,
         df_true_ss=df_true_ss,
-        method=method,
         knn=knn,
-        transf=transf,
-        hcorr=hcorr,
-        kernel=kernel,
         list_of_ss=list_of_ss,
         list_of_params=list_of_params,
         model_preprocessing_ss=model_preprocessing_ss,
         model_preprocessing_params=model_preprocessing_params,
-    )
-
-    if df_knn is None:
-        print("Something wrong with regression model results")
-        raise RuntimeError
-
-    df_knn["chainID"] = df_simu_space["chainID"]
-    print(output_ + "." + "knn")
-    df_knn[list_of_params + ["chainID"]].to_csv(
-        output_ + "." + "knn", sep="\t", index=False, float_format="%.8f"
+        output="/data/",
     )
 
     return True
