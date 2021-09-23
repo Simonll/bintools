@@ -8,7 +8,6 @@ from scipy.spatial import distance
 from sklearn.base import BaseEstimator
 
 from bintools.cabc.utils import transform
-from utils.utils import check_path
 
 
 def read(input_file: str) -> Optional[List[str]]:
@@ -68,24 +67,40 @@ def prepare_files_for_abc_r_package(
     return True
 
 
-def generate_output_filename(
-    method: str,
-    output: str,
+def generate_out_dir_cavc_step_0() -> Optional[str]:
+    """
+    step_0 consists of recovering gene for analysis
+    """
+
+
+def generate_out_dir_cavc_step_1() -> Optional[str]:
+    """
+    step_1 consists of generating posterior distribution using phylobayes-mpi
+    """
+
+
+def generate_output_dir_cabc_step_2() -> Optional[str]:
+    """
+    step_2 consists of simulating reference table using likelihoodfreephylogenetics
+    """
+
+
+def generate_output_dir_cabc_step_3(
+    geneID: str,
+    reg_model: str,
     preprocessing_ss: str,
     preprocessing_params,
     hcorr: str,
     kernel: str,
 ) -> Optional[str]:
-
-    if not check_path(path=output):
-        raise RuntimeError
-
-    output_: Optional[str] = None
-    if method == "loclinear":
-        output_ = (
-            output
-            + "-"
-            + "LRM"  # linear regression model
+    """
+    step_3 consists of preparing files for ABC r package analysis by applying rejection sampling
+    """
+    output_dir: str = "step_3-"
+    if reg_model == "loclinear":
+        output_dir += (
+            geneID
+            + "-LRM"  # linear regression model
             + "-SS_"
             + preprocessing_ss
             + "-PARAMS_"
@@ -95,11 +110,10 @@ def generate_output_filename(
             + "-"
             + kernel
         )
-    elif method == "neuralnet":
-        output_ = (
-            output
-            + "-"
-            + "NNRM"  # neural network regression model
+    elif reg_model == "neuralnet":
+        output_dir += (
+            geneID
+            + "-NNRM"  # neural network regression model
             + "-SS_"
             + preprocessing_ss
             + "-PARAMS_"
@@ -109,10 +123,9 @@ def generate_output_filename(
             + "-"
             + kernel
         )
-    elif method == "randomforest":
-        output_ = (
-            output
-            + "-"
+    elif reg_model == "randomforest":
+        output_dir += (
+            geneID
             + "RFRM"  # random forest regression model
             + "-SS_"
             + preprocessing_ss
@@ -121,10 +134,10 @@ def generate_output_filename(
         )
 
     else:
-        print("Something wrong %s" % method)
+        print("Something wrong %s" % reg_model)
         return None
 
-    return output_
+    return output_dir
 
 
 def get_closer_to_true_post(
