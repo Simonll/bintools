@@ -10,150 +10,59 @@ from sklearn.base import BaseEstimator
 from bintools.cabc.utils import transform
 
 
+def generate_cabc_conf(method: str, **kwargs) -> List[str]:
+    conf: Optional[List[str]] = None
+    if method == "M7":
+        conf = []
+        conf += ["#SUMMARIES" + "\t" + kwargs["ss"]]
+        conf += ["#PARAM" + "\t" + kwargs["param"]]
+        conf += ["#MAP" + "\t" + kwargs["map"]]
+        conf += ["#SAMPLING" + "\t" + kwargs["sampling"]]
+        conf += ["#RUN" + kwargs["nrun"]]
+        conf += ["#NTHREADS" + kwargs["nthreads"]]
+        conf += ["#TRANS no"]
+        conf += ["#OUTPUT" + kwargs["output"]]
+        conf += [
+            "\t".join(
+                ["#LOCALPARAM"]
+                + [kwargs["localparam"]]
+                + ["-d " + kwargs["align"]]
+                + ["-chain " + kwargs["chainname"]]
+            )
+        ]
+    else:
+        raise NotImplementedError(
+            "ERROR: simulation method %s not implemented" % method
+        )
+    return conf
+
+
 def read(input_file: str) -> Optional[List[str]]:
-    list_: List[str] = []
     try:
         with open(input_file, "r") as fh:
-            lines = fh.readlines()
-            list_ = [l.strip() for l in lines if not l.startswith("#")]
-        return list_
+            lines: List[str] = fh.readlines()
+            lines = [l.strip() for l in lines if not l.startswith("#")]
+        return lines
     except:
         print("something wrong: %s" % input_file)
         return None
 
 
-def prepare_files_for_abc_r_package(
-    df_simu_space: pd.DataFrame,
-    df_true_ss: pd.DataFrame,
-    knn: int,
-    list_of_ss: List[str],
-    list_of_params: List[str],
-    model_preprocessing_ss: BaseEstimator,
-    model_preprocessing_params: BaseEstimator,
-    output: str,
-) -> bool:
-
-    df_simu_space["metric"] = distance.cdist(
-        model_preprocessing_ss.transform(
-            df_simu_space[list_of_ss],
-        ),
-        model_preprocessing_ss.transform(df_true_ss),
-        lambda u, v: ((u - v) ** 2).sum(),
-    )
-
-    df_simu_space.sort_values(by="metric", inplace=True)
-    df_simu_space.reset_index(inplace=True)
-    df_simu_space = df_simu_space.iloc[:knn, :]
-    assert df_simu_space.shape[0] == knn
-    try:
-        pd.DataFrame(
-            data=model_preprocessing_params.transform(df_simu_space[list_of_params]),
-            columns=list_of_params,
-        ).to_feather(output + "/df_simu_space_knn_params.feather")
-        pd.DataFrame(
-            data=model_preprocessing_ss.transform(df_simu_space[list_of_ss]),
-            columns=list_of_ss,
-        ).to_feather(output + "/df_simu_space_knn_ss.feather")
-        pd.DataFrame(
-            data=model_preprocessing_ss.transform(df_true_ss[list_of_ss]),
-            columns=list_of_ss,
-        ).reset_index()[list_of_ss].to_feather(output + "/df_true_ss.feather")
-
-    except Exception as e:
-        print("Something wrong saving files for abc r package %s" % str(e))
-
-        return False
-
-    return True
-
-
-def generate_out_dir_cavc_step_0() -> Optional[str]:
-    """
-    step_0 consists of recovering gene for analysis
-    """
-
-
-def generate_out_dir_cavc_step_1() -> Optional[str]:
-    """
-    step_1 consists of generating posterior distribution using phylobayes-mpi
-    """
-
-
-def generate_output_dir_cabc_step_2() -> Optional[str]:
-    """
-    step_2 consists of simulating reference table using likelihoodfreephylogenetics
-    """
-
-
-def generate_output_dir_cabc_step_3(
-    geneID: str,
-    reg_model: str,
-    preprocessing_ss: str,
-    preprocessing_params,
-    hcorr: str,
-    kernel: str,
-) -> Optional[str]:
-    """
-    step_3 consists of preparing files for ABC r package analysis by applying rejection sampling
-    """
-    output_dir: str = "step_3-"
-    if reg_model == "loclinear":
-        output_dir += (
-            geneID
-            + "-LRM"  # linear regression model
-            + "-SS_"
-            + preprocessing_ss
-            + "-PARAMS_"
-            + preprocessing_params
-            + "-"
-            + hcorr
-            + "-"
-            + kernel
-        )
-    elif reg_model == "neuralnet":
-        output_dir += (
-            geneID
-            + "-NNRM"  # neural network regression model
-            + "-SS_"
-            + preprocessing_ss
-            + "-PARAMS_"
-            + preprocessing_params
-            + "-"
-            + hcorr
-            + "-"
-            + kernel
-        )
-    elif reg_model == "randomforest":
-        output_dir += (
-            geneID
-            + "RFRM"  # random forest regression model
-            + "-SS_"
-            + preprocessing_ss
-            + "-PARAMS_"
-            + preprocessing_params
-        )
-
-    else:
-        print("Something wrong %s" % reg_model)
-        return None
-
-    return output_dir
-
-
-def get_closer_to_true_post(
+def generate_files_r_abc(
     simu_space_file: str,
     knn: int,
     params_file: str,
     ss_file: str,
-    output: str,
     preprocessing_ss: str,
     preprocessing_params: str,
     reg_model: str,
     true_ss_file: str,
+    input_dir: str,
+    output_dir: str,
 ) -> bool:
 
-    list_of_params: Optional[List[str]] = read(params_file)
-    list_of_ss: Optional[List[str]] = read(ss_file)
+    list_of_params: Optional[List[str]] = read(input_file=input_dir + params_file)
+    list_of_ss: Optional[List[str]] = read(input_file=input_dir + ss_file)
 
     if list_of_params is None or list_of_ss is None:
         print(
@@ -167,7 +76,7 @@ def get_closer_to_true_post(
     print(list_of_ss)
 
     df_simu_space: pd.DataFrame = pd.read_csv(
-        simu_space_file, sep="\t", index_col=False
+        input_dir + simu_space_file, sep="\t", index_col=False
     )
 
     print("simulation space dimensions", np.shape(df_simu_space))
@@ -183,7 +92,9 @@ def get_closer_to_true_post(
     print("shape of reference table after droping na", np.shape(df_simu_space))
 
     # reading realdata
-    df_true_ss: pd.DataFrame = pd.read_csv(true_ss_file, sep="\t", index_col=False)
+    df_true_ss: pd.DataFrame = pd.read_csv(
+        input_dir + true_ss_file, sep="\t", index_col=False
+    )
     df_true_ss.drop(
         [i for i in list(df_true_ss.columns) if (i not in list_of_ss)],
         axis=1,
@@ -212,16 +123,36 @@ def get_closer_to_true_post(
 
     assert df_true_ss.shape[1] == df_simu_space[list_of_ss].shape[1]
 
-    prepare_files_for_abc_r_package(
-        df_simu_space=df_simu_space,
-        df_true_ss=df_true_ss,
-        knn=knn,
-        list_of_ss=list_of_ss,
-        list_of_params=list_of_params,
-        model_preprocessing_ss=model_preprocessing_ss,
-        model_preprocessing_params=model_preprocessing_params,
-        output="/data/",
+    df_simu_space["metric"] = distance.cdist(
+        model_preprocessing_ss.transform(
+            df_simu_space[list_of_ss],
+        ),
+        model_preprocessing_ss.transform(df_true_ss),
+        lambda u, v: ((u - v) ** 2).sum(),
     )
+
+    df_simu_space.sort_values(by="metric", inplace=True)
+    df_simu_space.reset_index(inplace=True)
+    df_simu_space = df_simu_space.iloc[:knn, :]
+    assert df_simu_space.shape[0] == knn
+    try:
+        pd.DataFrame(
+            data=model_preprocessing_params.transform(df_simu_space[list_of_params]),
+            columns=list_of_params,
+        ).to_feather(output_dir + "df_simu_space_knn_params.feather")
+        pd.DataFrame(
+            data=model_preprocessing_ss.transform(df_simu_space[list_of_ss]),
+            columns=list_of_ss,
+        ).to_feather(output_dir + "df_simu_space_knn_ss.feather")
+        pd.DataFrame(
+            data=model_preprocessing_ss.transform(df_true_ss[list_of_ss]),
+            columns=list_of_ss,
+        ).reset_index()[list_of_ss].to_feather(output_dir + "df_true_ss.feather")
+
+    except Exception as e:
+        print("Something wrong saving files for abc r package %s" % str(e))
+
+        return False
 
     return True
 
@@ -261,6 +192,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--input_dir", type=str, required=True, description="input directory"
+    )
+
+    parser.add_argument(
         "--output_dir", type=str, required=True, description="output directory"
     )
 
@@ -294,14 +229,15 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    get_closer_to_true_post(
+    generate_files_r_abc(
         simu_space_file=args.simulation_space_file,
         knn=args.knn,
         params_file=args.params_file,
         ss_file=args.ss_file,
-        output=args.output,
         preprocessing_ss=args.trans_fct_ss,
         preprocessing_params=args.trans_fct_params,
         reg_model=args.reg_model,
         true_ss_file=args.true_ss_file,
+        input_dir=args.input_dir,
+        output_dir=args.output_dir,
     )

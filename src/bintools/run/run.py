@@ -15,15 +15,6 @@ def generate_abc_cmd(
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "abc":
-        keys = [
-            "--reg_model",
-            "--hcorr",
-            "--kernel",
-            "--transf",
-            "--df_true_ss",
-            "--df_simu_space_knn_params",
-            "--df_simu_space_knn_ss",
-        ]
         cmd = " ".join(
             [
                 DOCKER_RUN,
@@ -242,95 +233,14 @@ def generate_alignment_prank_cmd(
     return cmd
 
 
-def generate_simu_cmd(
-    method: str,
-    dict_conf: Dict[str, Any],
-    output_dir: str,
-    log_fname: str,
-    lfp_path: str = "/opt/LikelihoodFreePhylogenetics/data/LFP",
-    codemlM7M8_path: str = "/opt/LikelihoodFreePhylogenetics/data/codemlM7M8",
-) -> Optional[str]:
+def generate_simu_cmd(method: str, mapping: str, image: str, **kwargs) -> Optional[str]:
     cmd: Optional[str] = None
-    filename: str = (
-        dict_conf["geneID"].split(".")[0]
-        + "-"
-        + dict_conf["model"]
-        + "-"
-        + dict_conf["mark"]
-    )
-
-    os.makedirs(output_dir, exist_ok=True)
-    if not os.path.exists(dict_conf["aln_path"]):
-        print("path to alignment doesnt exist %s" % dict_conf["aln_path"])
-
-    if not os.path.exists(dict_conf["chain_path"] + ".chain"):
-        print("path to pb_mpi doesnt exist %s" % dict_conf["chain_path"])
-
-    if method == "simulation":
-        with open(output_dir + filename + ".conf", "w") as hl:
-            hl.write("\t".join(["#SUMMARIES"] + dict_conf["ss"]))
-            hl.write("\n")
-            hl.write("\t".join(["#PARAM"] + dict_conf["param"]))
-            hl.write("\n")
-            hl.write("\t".join(["#MAP"] + dict_conf["map"]))
-            hl.write("\n")
-            hl.write("\t".join(["#SAMPLING" + " " + dict_conf["sampling"]]))
-            hl.write("\n")
-            # hl.write("\t".join(["#CHAIN"+" "+dict_conf["chain_path"]]))
-            # hl.write("\n")
-            hl.write("\t".join(["#RUN" + " " + dict_conf["nrun"]]))
-            hl.write("\n")
-            hl.write("\t".join(["#NTHREADS" + " " + str(dict_conf["nthreads"])]))
-            hl.write("\n")
-            hl.write("#TRANS no")
-            hl.write("\n")
-            hl.write("\t".join(["#OUTPUT"] + [output_dir + filename]))
-            hl.write("\n")
-            hl.write(
-                "\t".join(
-                    ["#LOCALPARAM"]
-                    + dict_conf["localparam"]
-                    + ["-d " + dict_conf["aln_path"]]
-                    + ["-chain " + dict_conf["chain_path"]]
-                )
-            )
-        cmd = " ".join(
-            [lfp_path] + [dict_conf["args"]] + [output_dir + filename + ".conf"]
+    if method == "M7":
+        cmd = " ".join([DOCKER_RUN, mapping, image, joint_kwargs(**kwargs)])
+    else:
+        raise NotImplementedError(
+            "ERROR: simulation method %s not implemented" % method
         )
-    elif method == "M7" or method == "M8" or method == "M8a":
-        with open(output_dir + filename + ".conf", "w") as hl:
-            hl.write("\t".join(["#SUMMARIES"] + dict_conf["ss"]))
-            hl.write("\n")
-            hl.write("\t".join(["#PARAM"] + dict_conf["param"]))
-            hl.write("\n")
-            hl.write("\t".join(["#MAP"] + dict_conf["map"]))
-            hl.write("\n")
-            hl.write("\t".join(["#SAMPLING" + " " + dict_conf["sampling"]]))
-            hl.write("\n")
-            hl.write("\t".join(["#RUN" + " " + dict_conf["nrun"]]))
-            hl.write("\n")
-            hl.write("\t".join(["#NTHREADS" + " " + str(1)]))
-            hl.write("\n")
-            hl.write("#TRANS no")
-            hl.write("\n")
-            hl.write("\t".join(["#OUTPUT"] + [output_dir + filename]))
-            hl.write("\n")
-            hl.write(
-                "\t".join(
-                    ["#LOCALPARAM"]
-                    + dict_conf["localparam"]
-                    + ["-d " + dict_conf["aln_path"]]
-                    + ["-chain " + dict_conf["chain_path"]]
-                )
-            )
-        cmd = " ".join(
-            [codemlM7M8_path] + [dict_conf["args"]] + [output_dir + filename + ".conf"]
-        )
-    if cmd is None:
-        print("Something wrong with cmd")
-        raise RuntimeError
-    cmd = cmd + " 2>" + output_dir + log_fname
-
     return cmd
 
 
