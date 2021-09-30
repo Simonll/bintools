@@ -10,6 +10,22 @@ from bintools.run.utils import joint_kwargs
 DOCKER_RUN: str = "docker run --user $(id -u):$(id -g) --rm -v "
 
 
+def generate_phylobayes_cmd(
+    method: str, mapping: str, image: str = "ubuntu20.04/phylobayes", **kwargs
+) -> Optional[str]:
+    cmd: Optional[str] = None
+    if method == "pb":
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                joint_kwargs(**kwargs),
+            ]
+        )
+    return cmd
+
+
 def generate_abc_cmd(
     method: str, mapping: str, image: str = "r-base3.6.3/abc", **kwargs
 ) -> Optional[str]:

@@ -51,8 +51,8 @@ def read(input_file: str) -> Optional[List[str]]:
 def generate_files_r_abc(
     simu_space_file: str,
     knn: int,
-    params_file: str,
-    ss_file: str,
+    params: List[str],
+    ss: List[str],
     preprocessing_ss: str,
     preprocessing_params: str,
     reg_model: str,
@@ -61,15 +61,8 @@ def generate_files_r_abc(
     output_dir: str,
 ) -> bool:
 
-    list_of_params: Optional[List[str]] = read(input_file=input_dir + params_file)
-    list_of_ss: Optional[List[str]] = read(input_file=input_dir + ss_file)
-
-    if list_of_params is None or list_of_ss is None:
-        print(
-            "Something wrong with params %s or summary statistics %ss"
-            % (params_file, ss_file)
-        )
-        raise RuntimeError
+    list_of_params: List[str] = params
+    list_of_ss: List[str] = ss
 
     print("Here the list of params and summary statistics")
     print(list_of_params)
@@ -178,17 +171,17 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--params_file",
+        "--params",
         type=str,
         required=True,
-        description="file with list of parameters to be considered",
+        description="list of parameters to be considered",
     )
 
     parser.add_argument(
-        "--ss_file",
+        "--ss",
         type=str,
         required=True,
-        description="file with list of summary statistics to be considered",
+        description="list of summary statistics to be considered",
     )
 
     parser.add_argument(
@@ -232,8 +225,8 @@ if __name__ == "__main__":
     generate_files_r_abc(
         simu_space_file=args.simulation_space_file,
         knn=args.knn,
-        params_file=args.params_file,
-        ss_file=args.ss_file,
+        params=args.params,
+        ss=args.ss,
         preprocessing_ss=args.trans_fct_ss,
         preprocessing_params=args.trans_fct_params,
         reg_model=args.reg_model,

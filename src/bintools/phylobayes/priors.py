@@ -4,19 +4,6 @@ from typing import List
 import numpy as np
 import scipy as sc
 
-# def get_value_from_list(list_of_values: List[float]) -> float:
-#     """
-#     samples values from list
-#     """
-#     u_float: float = sc.stats.uniform(0, 1).rvs()
-#     k: int = 1
-#     gibbs: float = k / len(list_of_values)
-#     while gibbs < u_float:
-#         k += 1
-#         gibbs = k / len(list_of_values)
-#     k -= 1
-#     return list_of_values[k]
-
 
 def prior_M7M8_mix(N: int, mixture: List[float]) -> Dict[int, float]:
     """
