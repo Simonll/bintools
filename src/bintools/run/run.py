@@ -15,12 +15,32 @@ def generate_phylobayes_cmd(
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "pb":
+        chainname: str = ""
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
         cmd = " ".join(
             [
                 DOCKER_RUN,
                 mapping,
                 image,
+                "pb",
                 joint_kwargs(**kwargs),
+                chainname
+            ]
+        )
+    if method == "ppred":
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "-ppred",
+                joint_kwargs(**kwargs),
+                chainname
             ]
         )
     return cmd
