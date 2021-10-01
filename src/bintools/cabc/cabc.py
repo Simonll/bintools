@@ -55,7 +55,6 @@ def generate_files_r_abc(
     ss: List[str],
     preprocessing_ss: str,
     preprocessing_params: str,
-    reg_model: str,
     true_ss_file: str,
     output_dir: str,
 ) -> bool:
@@ -200,13 +199,6 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--reg_model",
-        type=str,
-        required=True,
-        description="regression model to be use to get closer to the true posterior distribution",
-    )
-
-    parser.add_argument(
         "--true_ss_file",
         type=str,
         required=True,
@@ -222,7 +214,6 @@ if __name__ == "__main__":
         ss=args.ss,
         preprocessing_ss=args.trans_fct_ss,
         preprocessing_params=args.trans_fct_params,
-        reg_model=args.reg_model,
         true_ss_file=args.true_ss_file,
         output_dir=args.output_dir,
     )
