@@ -57,7 +57,6 @@ def generate_files_r_abc(
     preprocessing_params: str,
     reg_model: str,
     true_ss_file: str,
-    input_dir: str,
     output_dir: str,
 ) -> bool:
 
@@ -69,7 +68,7 @@ def generate_files_r_abc(
     print(list_of_ss)
 
     df_simu_space: pd.DataFrame = pd.read_csv(
-        input_dir + simu_space_file, sep="\t", index_col=False
+        simu_space_file, sep="\t", index_col=False
     )
 
     print("simulation space dimensions", np.shape(df_simu_space))
@@ -85,9 +84,7 @@ def generate_files_r_abc(
     print("shape of reference table after droping na", np.shape(df_simu_space))
 
     # reading realdata
-    df_true_ss: pd.DataFrame = pd.read_csv(
-        input_dir + true_ss_file, sep="\t", index_col=False
-    )
+    df_true_ss: pd.DataFrame = pd.read_csv(true_ss_file, sep="\t", index_col=False)
     df_true_ss.drop(
         [i for i in list(df_true_ss.columns) if (i not in list_of_ss)],
         axis=1,
@@ -185,10 +182,6 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--input_dir", type=str, required=True, description="input directory"
-    )
-
-    parser.add_argument(
         "--output_dir", type=str, required=True, description="output directory"
     )
 
@@ -231,6 +224,5 @@ if __name__ == "__main__":
         preprocessing_params=args.trans_fct_params,
         reg_model=args.reg_model,
         true_ss_file=args.true_ss_file,
-        input_dir=args.input_dir,
         output_dir=args.output_dir,
     )
