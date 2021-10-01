@@ -91,7 +91,7 @@ def generate_pb_mpi_cmd(
                 DOCKER_RUN,
                 mapping,
                 image,
-                "mpirun -np",
+                "mpirun --allow-run-as-root  -np",
                 str(np),
                 "pb_mpi",
                 joint_kwargs(**kwargs),
