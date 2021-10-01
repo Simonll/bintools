@@ -11,7 +11,11 @@ DOCKER_RUN: str = "docker run --user $(id -u):$(id -g) --rm -v "
 
 
 def generate_phylobayes_cmd(
-    method: str, mapping: str, image: str = "ubuntu20.04/phylobayes", **kwargs
+    method: str,
+    mapping: str,
+    logger: str,
+    image: str = "ubuntu20.04/phylobayes",
+    **kwargs
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "pb":
@@ -20,14 +24,30 @@ def generate_phylobayes_cmd(
             chainname = kwargs["-chainname"]
             del kwargs["-chainname"]
         cmd = " ".join(
-            [DOCKER_RUN, mapping, image, "pb", joint_kwargs(**kwargs), chainname]
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "pb",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger,
+            ]
         )
     if method == "ppred":
         if "-chainname" in kwargs:
             chainname = kwargs["-chainname"]
             del kwargs["-chainname"]
         cmd = " ".join(
-            [DOCKER_RUN, mapping, image, "ppred", joint_kwargs(**kwargs), chainname]
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "ppred",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger,
+            ]
         )
     return cmd
 
@@ -49,7 +69,7 @@ def generate_abc_cmd(
 
 
 def generate_pb_mpi_cmd(
-    method: str, mapping: str, image: str = "ubuntu20.04/pbmpi", **kwargs
+    method: str, mapping: str, logger: str, image: str = "ubuntu20.04/pbmpi", **kwargs
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "pb_mpi":
@@ -76,12 +96,25 @@ def generate_pb_mpi_cmd(
                 "pb_mpi",
                 joint_kwargs(**kwargs),
                 chainname,
+                logger,
             ]
         )
 
     elif method == "readpb_mpi":
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
+
         cmd = " ".join(
-            [DOCKER_RUN, mapping, image, "readpb_mpi", joint_kwargs(**kwargs)]
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "readpb_mpi",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger,
+            ]
         )
 
     else:
