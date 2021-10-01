@@ -57,6 +57,7 @@ def generate_files_r_abc(
     preprocessing_params: str,
     true_ss_file: str,
     output_dir: str,
+    prefix: str,
 ) -> bool:
 
     list_of_params: List[str] = params
@@ -128,15 +129,17 @@ def generate_files_r_abc(
         pd.DataFrame(
             data=model_preprocessing_params.transform(df_simu_space[list_of_params]),
             columns=list_of_params,
-        ).to_feather(output_dir + "df_simu_space_knn_params.feather")
+        ).to_feather(output_dir + prefix + "-df_simu_space_knn_params.feather")
         pd.DataFrame(
             data=model_preprocessing_ss.transform(df_simu_space[list_of_ss]),
             columns=list_of_ss,
-        ).to_feather(output_dir + "df_simu_space_knn_ss.feather")
+        ).to_feather(output_dir + prefix + "-df_simu_space_knn_ss.feather")
         pd.DataFrame(
             data=model_preprocessing_ss.transform(df_true_ss[list_of_ss]),
             columns=list_of_ss,
-        ).reset_index()[list_of_ss].to_feather(output_dir + "df_true_ss.feather")
+        ).reset_index()[list_of_ss].to_feather(
+            output_dir + prefix + "-df_true_ss.feather"
+        )
 
     except Exception as e:
         print("Something wrong saving files for abc r package %s" % str(e))
@@ -205,6 +208,13 @@ if __name__ == "__main__":
         description="summary statistics values computed from true data",
     )
 
+    parser.add_argument(
+        "--prefix",
+        type=str,
+        required=True,
+        description="prefix used to id analyses",
+    )
+
     args = parser.parse_args()
 
     generate_files_r_abc(
@@ -215,5 +225,6 @@ if __name__ == "__main__":
         preprocessing_ss=args.trans_fct_ss,
         preprocessing_params=args.trans_fct_params,
         true_ss_file=args.true_ss_file,
+        prefix=args.prefix,
         output_dir=args.output_dir,
     )
