@@ -13,7 +13,7 @@ DOCKER_RUN: str = "docker run --user $(id -u):$(id -g) --rm -v "
 def generate_phylobayes_cmd(
     method: str,
     mapping: str,
-    logger: str,
+    logger: Optional[str] = None,
     image: str = "ubuntu20.04/phylobayes",
     **kwargs
 ) -> Optional[str]:
@@ -31,7 +31,7 @@ def generate_phylobayes_cmd(
                 "pb",
                 joint_kwargs(**kwargs),
                 chainname,
-                logger,
+                logger if logger is not None else "",
             ]
         )
     if method == "ppred":
@@ -46,7 +46,7 @@ def generate_phylobayes_cmd(
                 "ppred",
                 joint_kwargs(**kwargs),
                 chainname,
-                logger,
+                logger if logger is not None else "",
             ]
         )
     return cmd
@@ -69,7 +69,11 @@ def generate_abc_cmd(
 
 
 def generate_pb_mpi_cmd(
-    method: str, mapping: str, logger: str, image: str = "ubuntu20.04/pbmpi", **kwargs
+    method: str,
+    mapping: str,
+    logger: Optional[str] = None,
+    image: str = "ubuntu20.04/pbmpi",
+    **kwargs
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "pb_mpi":
@@ -96,7 +100,7 @@ def generate_pb_mpi_cmd(
                 "pb_mpi",
                 joint_kwargs(**kwargs),
                 chainname,
-                logger,
+                logger if logger is not None else "",
             ]
         )
 
@@ -113,7 +117,7 @@ def generate_pb_mpi_cmd(
                 "readpb_mpi",
                 joint_kwargs(**kwargs),
                 chainname,
-                logger,
+                logger if logger is not None else "",
             ]
         )
 
