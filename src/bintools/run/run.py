@@ -105,6 +105,10 @@ def generate_pb_mpi_cmd(
         )
 
     elif method == "readpb_mpi":
+        if "-np" in kwargs:
+            np = kwargs["-np"]
+            del kwargs["-np"]
+
         if "-chainname" in kwargs:
             chainname = kwargs["-chainname"]
             del kwargs["-chainname"]
@@ -114,6 +118,8 @@ def generate_pb_mpi_cmd(
                 DOCKER_RUN,
                 mapping,
                 image,
+                "mpirun --allow-run-as-root  -np",
+                str(np),
                 "readpb_mpi",
                 joint_kwargs(**kwargs),
                 chainname,
