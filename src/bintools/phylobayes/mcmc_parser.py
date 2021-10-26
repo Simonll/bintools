@@ -37,6 +37,14 @@ class posterior:
         raise RuntimeError()
 
 
+class posterior_MGTRtsCpG_SNCatAA(posterior):
+    """
+    need to read MCMC + ABC parameter values
+    """
+
+    pass
+
+
 class posterior_M0_GTR(posterior):
     """
     posterior distribution of M0-GTR F1 x 4 (Muse and Goat 1994) generated under Phylobayes-MPI
