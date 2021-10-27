@@ -42,6 +42,66 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
     need to read MCMC + ABC parameter values
     """
 
+    def __init__(self, mcmc_path: Path, abc_path: Path, burnin: int):
+        super().__init__(mcmc_path=mcmc_path, burnin=burnin)
+
+        self.list_of_trees: List[str] = []
+        self.list_of_phi: List[List[float]] = []
+        self.list_of_rho: List[List[float]] = []
+        self.list_of_omega: List[float] = []
+        self.number_of_profiles: int = -1
+        self.list_of_aa_profiles: List[List[float]] = []
+        self.list_of_alloc: List[int] = []
+        self.parse_mcmc()
+
+    def parse_mcmc(self) -> bool:
+        """
+        parses mcmc
+        """
+        try:
+            with open(self.mcmc_path, "r") as hl:
+                lines = hl.readlines()
+                k = 0
+                for line in lines:
+                    if k == 0:
+                        self.list_of_trees += [line.strip()]
+                    if k == 3:
+                        self.list_of_phi += [
+                            np.fromstring(line, dtype=float, sep="\t").tolist()
+                        ]
+                    if k == 5:
+                        self.list_of_rho += [
+                            np.fromstring(line, dtype=float, sep="\t").tolist()
+                        ]
+                    if k == 10:
+                        self.list_of_omega += np.fromstring(
+                            line, dtype=float, sep="\t"
+                        ).tolist()
+
+                    if k == 12:
+                        self.number_of_profiles = np.fromstring(
+                            line, dtype=int, sep="\t"
+                        )
+                    k += 1
+                    if k == 15:
+                        k_profile = 0
+                        while k_profile < self.number_of_profiles:
+                            self.list_of_aa_profiles[k_profile] = np.fromstring(
+                                line, dtype=float, sep="\t"
+                            ).tolist()
+                            k_profile += 1
+                        k += 1
+                    if k == self.number_of_profiles + 15:
+                        self.list_of_alloc = np.fromstring(
+                            line, dtype=int, sep="\t"
+                        ).tolist()
+                        k = 0
+
+            return True
+        except Exception as e:
+            print("something wrong %s when parsing %s" % (str(e), self.mcmc_path))
+            return False
+
     pass
 
 
