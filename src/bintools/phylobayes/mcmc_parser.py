@@ -21,6 +21,10 @@ class posterior:
         self.burnin: int = burnin
         assert check_path(self.mcmc_path)
         assert burnin >= 0
+        self.list_of_chainID: List[int] = []
+
+    def __sizeof__(self) -> int:
+        return len(self.list_of_chainID)
 
     @abc.abstractmethod
     def parse_mcmc(self):
@@ -60,7 +64,6 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
         self.number_of_aa_profiles: int = -1
         self.list_of_aa_profiles: List[List[List[float]]] = []
         self.list_of_alloc: List[List[int]] = []
-        self.list_of_chainID: List[int] = []
         self.parse_mcmc()
 
     def parse_mcmc(self) -> bool:
