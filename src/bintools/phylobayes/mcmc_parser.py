@@ -37,6 +37,14 @@ class posterior:
         raise RuntimeError()
 
 
+def chunck_chain(lines, chunck_size):
+    for i, j in zip(
+        range(0, (len(lines) - chunck_size), chunck_size),
+        range(chunck_size, len(lines), chunck_size),
+    ):
+        yield lines[i:j]
+
+
 class posterior_MGTRtsCpG_SNCatAA(posterior):
     """
     need to read MCMC + ABC parameter values
@@ -49,7 +57,7 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
         self.list_of_phi: List[List[float]] = []
         self.list_of_rho: List[List[float]] = []
         self.list_of_omega: List[float] = []
-        self.number_of_profiles: List[int] = []
+        self.number_of_aa_profiles: int = -1
         self.list_of_aa_profiles: List[List[List[float]]] = []
         self.list_of_alloc: List[List[int]] = []
         self.list_of_chainID: List[int] = []
@@ -62,47 +70,72 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
         try:
             with open(self.mcmc_path, "r") as hl:
                 lines = hl.readlines()
-                k = 0
-                chainID = 0
-                for line in lines:
-                    if k == 0:
-                        self.list_of_trees += [line.strip()]
-                    if k == 3:
+                self.number_of_aa_profiles = int(lines[11])
+                print(self.number_of_aa_profiles)
+                for chainID, chunck in enumerate(
+                    chunck_chain(
+                        lines=lines, chunck_size=self.number_of_aa_profiles + 15
+                    )
+                ):
+                    self.list_of_chainID += [chainID]
+                    try:
+                        self.list_of_trees += [chunck[0].strip()]
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s" % ("parsing the tree", str(e))
+                        )
+
+                    try:
                         self.list_of_phi += [
-                            np.fromstring(line, dtype=float, sep="\t").tolist()
+                            np.fromstring(chunck[3], dtype=float, sep="\t").tolist()
                         ]
-                    if k == 5:
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s" % ("parsing the phi", str(e))
+                        )
+
+                    try:
                         self.list_of_rho += [
-                            np.fromstring(line, dtype=float, sep="\t").tolist()
+                            np.fromstring(chunck[5], dtype=float, sep="\t").tolist()
                         ]
-                    if k == 9:
-                        self.list_of_omega += np.fromstring(
-                            line, dtype=float, sep="\t"
-                        ).tolist()
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s" % ("parsing the rho", str(e))
+                        )
 
-                    if k == 11:
-                        self.number_of_profiles += np.fromstring(
-                            line, dtype=int, sep="\t"
-                        ).to_list()
-                    k += 1
-                    if k == 14:
-                        k_profile = 0
-                        cur_list_of_profiles: List[List[float]] = []
-                        while k_profile < self.number_of_profiles[chainID]:
-                            cur_list_of_profiles += [
-                                np.fromstring(line, dtype=float, sep="\t").tolist()
+                    try:
+                        self.list_of_omega += [float(chunck[9].strip())]
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s" % ("parsing the omega", str(e))
+                        )
+
+                    try:
+                        cur_list_of_aa_profiles: List[List[float]] = []
+                        for i in range(14, (self.number_of_aa_profiles + 14)):
+                            cur_list_of_aa_profiles += [
+                                np.fromstring(chunck[i], dtype=float, sep="\t").tolist()
                             ]
-                            k_profile += 1
-                            k += 1
-                        self.list_of_aa_profiles += [cur_list_of_profiles]
+                        self.list_of_aa_profiles += [cur_list_of_aa_profiles]
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s"
+                            % ("parsing the aa profiles", str(e))
+                        )
 
-                    if k == self.number_of_profiles[chainID] + 14:
+                    try:
                         self.list_of_alloc += [
-                            np.fromstring(line, dtype=int, sep="\t").tolist()
+                            np.fromstring(
+                                chunck[self.number_of_aa_profiles + 14],
+                                dtype=int,
+                                sep="\t",
+                            ).tolist()
                         ]
-                        k = 0
-                        self.list_of_chainID += [chainID]
-                        chainID += 1
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s"
+                            % ("parsing the aa profile allocation", str(e))
+                        )
 
             return True
         except Exception as e:
