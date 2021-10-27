@@ -8,7 +8,7 @@ from typing import Union
 
 import numpy as np
 
-from utils.utils import check_path
+from bintools.utils.utils import check_path
 
 
 class posterior:
@@ -52,6 +52,7 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
         self.number_of_profiles: List[int] = []
         self.list_of_aa_profiles: List[List[List[float]]] = []
         self.list_of_alloc: List[List[int]] = []
+        self.list_of_chainID: List[int] = []
         self.parse_mcmc()
 
     def parse_mcmc(self) -> bool:
@@ -74,17 +75,17 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
                         self.list_of_rho += [
                             np.fromstring(line, dtype=float, sep="\t").tolist()
                         ]
-                    if k == 10:
+                    if k == 9:
                         self.list_of_omega += np.fromstring(
                             line, dtype=float, sep="\t"
                         ).tolist()
 
-                    if k == 12:
+                    if k == 11:
                         self.number_of_profiles += np.fromstring(
                             line, dtype=int, sep="\t"
                         ).to_list()
                     k += 1
-                    if k == 15:
+                    if k == 14:
                         k_profile = 0
                         cur_list_of_profiles: List[List[float]] = []
                         while k_profile < self.number_of_profiles[chainID]:
@@ -92,18 +93,23 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
                                 np.fromstring(line, dtype=float, sep="\t").tolist()
                             ]
                             k_profile += 1
+                            k += 1
                         self.list_of_aa_profiles += [cur_list_of_profiles]
-                        k += 1
-                    if k == self.number_of_profiles[chainID] + 15:
+
+                    if k == self.number_of_profiles[chainID] + 14:
                         self.list_of_alloc += [
                             np.fromstring(line, dtype=int, sep="\t").tolist()
                         ]
                         k = 0
+                        self.list_of_chainID += [chainID]
                         chainID += 1
 
             return True
         except Exception as e:
-            print("something wrong %s when parsing %s" % (str(e), self.mcmc_path))
+            print(
+                "something wrong %s when parsing %s"
+                % (str(e), self.mcmc_path.__str__())
+            )
             return False
 
 
@@ -151,7 +157,10 @@ class posterior_M0_GTR(posterior):
 
             return True
         except Exception as e:
-            print("something wrong %s when parsing %s" % (str(e), self.mcmc_path))
+            print(
+                "something wrong %s when parsing %s"
+                % (str(e), self.mcmc_path.__str__())
+            )
             return False
 
     def sample(self) -> Dict[str, Union[float, str]]:
