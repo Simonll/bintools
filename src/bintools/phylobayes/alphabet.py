@@ -1,5 +1,8 @@
-precision = 10000
-AminoAcids = [
+from typing import Dict
+from typing import List
+
+precision: int = 10000
+amino_acids_upper: List[str] = [
     "A",
     "C",
     "D",
@@ -22,7 +25,7 @@ AminoAcids = [
     "Y",
     "-",
 ]
-aminoacids = [
+amino_acids_lower: List[str] = [
     "a",
     "c",
     "d",
@@ -45,11 +48,11 @@ aminoacids = [
     "y",
     "-",
 ]
-DNAletters = ["A", "C", "G", "T"]
-dnaletters = ["a", "c", "g", "t"]
-RNAletters = ["A", "C", "G", "U"]
-rnaletters = ["a", "c", "g", "u"]
-Codons = [
+dna_upper: List[str] = ["A", "C", "G", "T"]
+dna_lower: List[str] = ["a", "c", "g", "t"]
+rna_upper: List[str] = ["A", "C", "G", "U"]
+rna_lower: List[str] = ["a", "c", "g", "u"]
+codons: List[str] = [
     "TTT",
     "TTC",
     "TTA",
@@ -115,7 +118,7 @@ Codons = [
     "GGA",
     "GGG",
 ]
-codonpos = [
+codons_position: List[List[int]] = [
     [
         3,
         3,
@@ -316,11 +319,11 @@ codonpos = [
     ],
 ]
 
-Nucrr = ["AC", "AG", "AT", "CG", "CT", "GT"]
-Naa = 20
-Nnuc = 4
-Ncodon = 64
-UniCodonCode = [
+nucleotide_rr: List[str] = ["AC", "AG", "AT", "CG", "CT", "GT"]
+number_of_amino_acids: int = 20
+number_of_nucleotides: int = 4
+number_of_codons: int = 64
+gen_code_standard: List[int] = [
     4,
     4,
     9,
@@ -386,8 +389,29 @@ UniCodonCode = [
     5,
     5,
 ]
-UniCodeAADeg = [4, 2, 2, 2, 2, 4, 2, 3, 2, 6, 1, 2, 4, 2, 6, 6, 4, 4, 1, 2]
-MtInvCodonCode = [
+gen_code_standard_deg_lvl: List[int] = [
+    4,
+    2,
+    2,
+    2,
+    2,
+    4,
+    2,
+    3,
+    2,
+    6,
+    1,
+    2,
+    4,
+    2,
+    6,
+    6,
+    4,
+    4,
+    1,
+    2,
+]
+gen_code_mito_invert: List[int] = [
     4,
     4,
     9,
@@ -453,8 +477,29 @@ MtInvCodonCode = [
     5,
     5,
 ]
-MtInvCodeAADeg = [4, 2, 2, 2, 2, 4, 2, 2, 2, 6, 2, 2, 4, 2, 4, 8, 4, 4, 2, 2]
-MtMamCodonCode = [
+gen_code_mito_invert_deg_lvl: List[int] = [
+    4,
+    2,
+    2,
+    2,
+    2,
+    4,
+    2,
+    2,
+    2,
+    6,
+    2,
+    2,
+    4,
+    2,
+    4,
+    8,
+    4,
+    4,
+    2,
+    2,
+]
+gen_code_mito_mam: List[int] = [
     4,
     4,
     9,
@@ -521,9 +566,54 @@ MtMamCodonCode = [
     5,
 ]
 
-Dayhoff6Table = [3, 5, 2, 2, 4, 3, 1, 0, 1, 0, 0, 2, 3, 2, 1, 3, 3, 0, 4, 4]
-Dayhoff4Table = [3, -1, 2, 2, 0, 3, 1, 0, 1, 0, 0, 2, 3, 2, 1, 3, 3, 0, 2, 2]
+dayhoff6_code: List[int] = [3, 5, 2, 2, 4, 3, 1, 0, 1, 0, 0, 2, 3, 2, 1, 3, 3, 0, 4, 4]
+dayhoff4_code: List[int] = [3, -1, 2, 2, 0, 3, 1, 0, 1, 0, 0, 2, 3, 2, 1, 3, 3, 0, 2, 2]
 
-TOOSMALL = 1e-30
-TOOLARGE = 500
-TOOLARGENEGATIVE = -500
+TOOSMALL: float = 1e-30
+TOOLARGE: float = 500
+TOOLARGENEGATIVE: float = -500
+
+
+dict_of_codon_standard_code_str_int: Dict[str, int] = {
+    codon_i: gen_code_standard[i] for i, codon_i in enumerate(codons)
+}
+
+dict_of_codon_standard_code_int_str: Dict[int, str] = {
+    gen_code_standard[i]: codon_i
+    for i, codon_i in enumerate(codons)
+    if gen_code_standard[i] != -1
+}
+
+
+def get_diff_codon_position(codon_1: str, codon_2: str):
+    Npos, pos = 0, 0
+
+    if codon_1 == codon_2:
+        return -1
+
+    for i in range(0, 3):
+        if codon_1[i] != codon_2[i]:
+            pos = i
+            Npos += 1
+        if Npos > 1:
+            return -1
+    return pos
+
+
+def is_conservative(amino_acid_1: int, amino_acid_2: int) -> bool:
+
+    if dayhoff6_code[amino_acid_1] == dayhoff6_code[amino_acid_2]:
+        return True
+
+    return False
+
+
+def is_synonymous(codon_1: int, codon_2: int, gen_code: List[int]) -> bool:
+    amino_acid_1: int = gen_code[codon_1]
+    amino_acid_2: int = gen_code[codon_2]
+    if amino_acid_1 != -1 and amino_acid_2 != -1 and amino_acid_1 == amino_acid_2:
+        return True
+    return False
+
+
+dict_of_nuleotides_str_int: Dict[str, int] = {nuc: i for i, nuc in enumerate(dna_upper)}
