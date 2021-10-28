@@ -48,6 +48,25 @@ amino_acids_lower: List[str] = [
     "y",
     "-",
 ]
+nucleotide_symbols = {
+    "A": ["Adenine"],
+    "C": ["Cytosine"],
+    "G": ["Guanine"],
+    "T": ["Thymine"],
+    "U": ["Uracil"],
+    "R": ["Guanine", "Adenine (purine)"],
+    "Y": ["Cytosine", "Thymine (pyrimidine)"],
+    "K": ["Guanine", "Thymine"],
+    "M": ["Adenine", "Cytosine"],
+    "S": ["Guanine,", "Cytosine"],
+    "W": ["Adenine", "Thymine"],
+    "B": ["Guanine", "Thymine", "Cytosine"],
+    "D": ["Guanine", "Adenine", "Thymine"],
+    "H": ["Adenine", "Cytosine", "Thymine"],
+    "V": ["Guanine", "Cytosine", "Adenine"],
+    "N": ["Adenine", "Guanine", "Cytosine", "Thymine"],
+}
+
 dna_upper: List[str] = ["A", "C", "G", "T"]
 dna_lower: List[str] = ["a", "c", "g", "t"]
 rna_upper: List[str] = ["A", "C", "G", "U"]
