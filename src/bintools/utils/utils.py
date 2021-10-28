@@ -1,3 +1,4 @@
+import datetime
 import os
 import pathlib
 from typing import Optional
@@ -20,3 +21,23 @@ def path_to_str(path: Union[str, pathlib.Path]) -> Optional[str]:
     elif type(path) == str:
         return path
     return None
+
+
+def compute_delta_time(t0: datetime.datetime, msg: str = ""):
+    t0_date_time = datetime.datetime.combine(t0.date(), t0.time())
+    t1_date_time = datetime.datetime.combine(
+        datetime.date.today(), datetime.datetime.now().time()
+    )
+    delta_time: float = (t1_date_time - t0_date_time).total_seconds()
+    unit_of_time: str = "s"
+    if delta_time > 120:
+        delta_time = delta_time / 60
+        unit_of_time = "min"
+    elif delta_time < 1e-2:
+        delta_time = delta_time * 1000
+        unit_of_time = "ms"
+    elif delta_time < 1e-4:
+        delta_time = delta_time * 1e6
+        unit_of_time = "us"
+
+    print("%.2f %s spent in %s" % (delta_time, unit_of_time, msg))
