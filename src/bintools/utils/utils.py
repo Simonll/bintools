@@ -1,8 +1,12 @@
 import datetime
 import os
 import pathlib
+from typing import Any
+from typing import Dict
 from typing import Optional
 from typing import Union
+
+import yaml
 
 
 def check_path(path: Union[str, pathlib.Path]) -> bool:
@@ -41,3 +45,13 @@ def compute_delta_time(t0: datetime.datetime, msg: str = ""):
         unit_of_time = "us"
 
     print("%.2f %s spent in %s" % (delta_time, unit_of_time, msg))
+
+
+def get_yaml_config(yaml_file: pathlib.Path) -> Optional[Dict[Any, Any]]:
+    with open(yaml_file.__str__(), "r") as stream:
+        try:
+            dict_of_config: Dict[Any, Any] = yaml.safe_load(stream)
+            return dict_of_config
+        except yaml.YAMLError as e:
+            print(str(e))
+            return None
