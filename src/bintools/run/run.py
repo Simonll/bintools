@@ -298,10 +298,14 @@ def generate_alignment_prank_cmd(
     return cmd
 
 
-def generate_simu_cmd(method: str, mapping: str, image: str = "ubuntu20.04/lfp", **kwargs) -> Optional[str]:
+def generate_simu_cmd(
+    method: str, mapping: str, image: str = "ubuntu20.04/lfp", **kwargs
+) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "M7":
-        cmd = " ".join([DOCKER_RUN, mapping, image, joint_kwargs(**kwargs)])
+        cmd = " ".join(
+            [DOCKER_RUN, mapping, image, "codemlM7M8", joint_kwargs(**kwargs)]
+        )
     else:
         raise NotImplementedError(
             "ERROR: simulation method %s not implemented" % method

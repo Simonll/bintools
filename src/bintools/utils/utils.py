@@ -27,7 +27,7 @@ def path_to_str(path: Union[str, pathlib.Path]) -> Optional[str]:
     return None
 
 
-def compute_delta_time(t0: datetime.datetime, msg: str = "")->str:
+def compute_delta_time(t0: datetime.datetime, msg: str = "") -> str:
     t0_date_time = datetime.datetime.combine(t0.date(), t0.time())
     t1_date_time = datetime.datetime.combine(
         datetime.date.today(), datetime.datetime.now().time()
@@ -46,6 +46,7 @@ def compute_delta_time(t0: datetime.datetime, msg: str = "")->str:
 
     print("%.2f %s spent in %s" % (delta_time, unit_of_time, msg))
     return "%.2f%s" % (delta_time, unit_of_time)
+
 
 def get_yaml_config(yaml_file: pathlib.Path) -> Optional[Dict[Any, Any]]:
     with open(yaml_file.__str__(), "r") as stream:
