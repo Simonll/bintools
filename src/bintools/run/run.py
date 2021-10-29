@@ -298,7 +298,7 @@ def generate_alignment_prank_cmd(
     return cmd
 
 
-def generate_simu_cmd(method: str, mapping: str, image: str, **kwargs) -> Optional[str]:
+def generate_simu_cmd(method: str, mapping: str, image: str = "ubuntu20.04/lfp", **kwargs) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "M7":
         cmd = " ".join([DOCKER_RUN, mapping, image, joint_kwargs(**kwargs)])
