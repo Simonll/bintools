@@ -299,12 +299,23 @@ def generate_alignment_prank_cmd(
 
 
 def generate_simu_cmd(
-    method: str, mapping: str, image: str = "ubuntu20.04/lfp", **kwargs
+    method: str,
+    mapping: str,
+    logger: Optional[str] = None,
+    image: str = "ubuntu20.04/lfp",
+    **kwargs
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "M7":
         cmd = " ".join(
-            [DOCKER_RUN, mapping, image, "codemlM7M8", joint_kwargs(**kwargs)]
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "codemlM7M8",
+                joint_kwargs(**kwargs),
+                logger if logger is not None else "",
+            ]
         )
     else:
         raise NotImplementedError(
