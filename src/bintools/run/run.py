@@ -301,6 +301,7 @@ def generate_alignment_prank_cmd(
 def generate_simu_cmd(
     method: str,
     mapping: str,
+    config_filename: str,
     logger: Optional[str] = None,
     image: str = "ubuntu20.04/lfp",
     **kwargs
@@ -314,6 +315,7 @@ def generate_simu_cmd(
                 image,
                 "codemlM7M8",
                 joint_kwargs(**kwargs),
+                config_filename,
                 logger if logger is not None else "",
             ]
         )
