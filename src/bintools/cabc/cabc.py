@@ -66,7 +66,7 @@ def recover_r_abc_results(
         return False
     try:
         pd.DataFrame(
-            data=model_preprocessing_params.transform(df_knn),
+            data=model_preprocessing_params.inverse_transform(df_knn),
         ).to_csv(output_dir + prefix + "-df_knn_params.tsv", sep="\t")
     except Exception as e:
         print("something wrong with %s" % output_dir + prefix + "-df_knn_params.tsv")
