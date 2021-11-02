@@ -1,4 +1,5 @@
 import argparse
+import pickle
 from typing import List
 from typing import Optional
 
@@ -111,6 +112,26 @@ def generate_files_r_abc(
         print("Something wrong with pre-processing of params")
         raise RuntimeError
 
+    try:
+        with open(output_dir + prefix + "model_preprocessing_ss.pickle", "wb") as fh:
+            pickle.dump(model_preprocessing_ss, fh, pickle.HIGHEST_PROTOCOL)
+    except Exception as e:
+        print(
+            "something wrong while dumping %s on %s"
+            % (prefix + "model_preprocessing_ss", output_dir)
+        )
+
+    try:
+        with open(
+            output_dir + prefix + "model_preprocessing_params.pickle", "wb"
+        ) as fh:
+            pickle.dump(model_preprocessing_params, fh, pickle.HIGHEST_PROTOCOL)
+    except Exception as e:
+        print(
+            "something wrong while dumping %s on %s"
+            % (prefix + "model_preprocessing_params", output_dir)
+        )
+
     assert df_true_ss.shape[1] == df_simu_space[list_of_ss].shape[1]
 
     df_simu_space["metric"] = distance.cdist(
@@ -140,6 +161,7 @@ def generate_files_r_abc(
         ).reset_index()[list_of_ss].to_feather(
             output_dir + prefix + "-df_true_ss.feather"
         )
+        # http://onnx.ai/sklearn-onnx/ for better portability and durability
 
     except Exception as e:
         print("Something wrong saving files for abc r package %s" % str(e))
