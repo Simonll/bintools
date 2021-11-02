@@ -54,5 +54,5 @@ def get_yaml_config(yaml_file: pathlib.Path) -> Optional[Dict[Any, Any]]:
             dict_of_config: Dict[Any, Any] = yaml.safe_load(stream)
             return dict_of_config
         except yaml.YAMLError as e:
-            print(str(e))
+            print("something wrong loading yaml file %s" % yaml_file.__str__())
             return None
