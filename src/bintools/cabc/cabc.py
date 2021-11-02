@@ -49,6 +49,31 @@ def read(input_file: str) -> Optional[List[str]]:
         return None
 
 
+def recover_r_abc_results(
+    knn_file: str, model_preprocessing_params_file: str, output_dir: str, prefix: str
+) -> bool:
+    try:
+        model_preprocessing_params: Optional[BaseEstimator] = None
+        with open(model_preprocessing_params_file, "rb") as fh:
+            model_preprocessing_params = pickle.load(fh)
+    except Exception as e:
+        print("something wrong with %s" % model_preprocessing_params_file)
+        return False
+    try:
+        df_knn: pd.DataFrame = pd.read_feather(knn_file)
+    except Exception as e:
+        print("something wrong with %s" % knn_file)
+        return False
+    try:
+        pd.DataFrame(
+            data=model_preprocessing_params.transform(df_knn),
+        ).to_csv(output_dir + prefix + "-df_knn_params.tsv", sep="\t")
+    except Exception as e:
+        print("something wrong with %s" % output_dir + prefix + "-df_knn_params.tsv")
+        return False
+    return True
+
+
 def generate_files_r_abc(
     simu_space_file: str,
     knn: int,
@@ -113,7 +138,7 @@ def generate_files_r_abc(
         raise RuntimeError
 
     try:
-        with open(output_dir + prefix + "model_preprocessing_ss.pickle", "wb") as fh:
+        with open(output_dir + prefix + "-model_preprocessing_ss.pickle", "wb") as fh:
             pickle.dump(model_preprocessing_ss, fh, pickle.HIGHEST_PROTOCOL)
     except Exception as e:
         print(
@@ -123,7 +148,7 @@ def generate_files_r_abc(
 
     try:
         with open(
-            output_dir + prefix + "model_preprocessing_params.pickle", "wb"
+            output_dir + prefix + "-model_preprocessing_params.pickle", "wb"
         ) as fh:
             pickle.dump(model_preprocessing_params, fh, pickle.HIGHEST_PROTOCOL)
     except Exception as e:
