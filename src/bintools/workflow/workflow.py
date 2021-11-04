@@ -51,8 +51,9 @@ class workflow:
         for k in self.dict_of_dirs.keys():
             try:
                 os.makedirs(self.get_dir(type="local", dir=k), exist_ok=True)
+                print("dir: %s" % "created")
             except Exception as e:
-                print("something wrong with %s %s " % (k, e))
+                print("something wrong with %s %s " % (k, str(e)))
                 return False
         return True
 
