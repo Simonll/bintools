@@ -49,12 +49,13 @@ class workflow:
 
     def make_dirs(self) -> bool:
         for k in self.dict_of_dirs.keys():
-            try:
-                os.makedirs(self.get_dir(type="local", dir=k), exist_ok=True)
-                print("dir: %s" % "created")
-            except Exception as e:
-                print("something wrong with %s %s " % (k, str(e)))
-                return False
+            if k != "root_local":
+                try:
+                    os.makedirs(self.get_dir(type="local", dir=k), exist_ok=True)
+                    print("dir: %s created" % self.get_dir(type="local", dir=k))
+                except Exception as e:
+                    print("something wrong with %s %s " % (k, str(e)))
+                    return False
         return True
 
     def get_dir(self, type: str, dir: str):
