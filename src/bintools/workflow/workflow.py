@@ -68,7 +68,7 @@ class workflow:
                     return False
         return True
 
-    def get_dir(self, type: str, dir: str)-> str:
+    def get_dir(self, type: str, dir: str) -> str:
 
         if type not in ["local", "mapped"]:
             print("Something wrong with type %s" % type)

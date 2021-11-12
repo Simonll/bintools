@@ -327,6 +327,35 @@ def generate_simu_cmd(
 
 
 def generate_codeml_cmd(
+    method: str,
+    mapping: str,
+    config_filename: str,
+    logger: Optional[str] = None,
+    image: str = "ubuntu20.04/codeml",
+    **kwargs
+) -> Optional[str]:
+
+    cmd: Optional[str] = None
+    if method in ["M7", "M8", "M8a"]:
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "codeml",
+                joint_kwargs(**kwargs),
+                config_filename,
+                logger if logger is not None else "",
+            ]
+        )
+    else:
+        raise NotImplementedError(
+            "ERROR: simulation method %s not implemented" % method
+        )
+    return cmd
+
+
+def generate_codeml_cmd_(
     method: str, dict_conf: Dict[str, Any], output_dir: str, codeml_path: str
 ):
 
