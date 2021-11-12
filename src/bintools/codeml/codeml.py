@@ -8,8 +8,8 @@ def generate_codeml_conf(**kwargs) -> List[str]:
     for k, v in kwargs.items():
         if w_codeml(kwargs, k) is not None:
             conf += [w_codeml(kwargs, k)]
-    else:
-        print("something wrong with %s " % (k))
+        else:
+            print("something wrong with %s " % (k))
 
     return conf
 
