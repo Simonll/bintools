@@ -4,7 +4,9 @@ from typing import Optional
 
 from bintools.run.utils import joint_kwargs
 
-DOCKER_RUN: str = "docker run --user $(id -u):$(id -g) --rm -v "
+DOCKER_RUN: str = (
+    "docker run --rm -v "  # "docker run --user $(id -u):$(id -g) --rm -v "
+)
 
 
 def generate_phylobayes_cmd(
@@ -333,7 +335,7 @@ def generate_codeml_cmd(
 ) -> Optional[str]:
 
     cmd: Optional[str] = None
-    if method in ["M7", "M8", "M8a"]:
+    if method in ["M0", "M7", "M8", "M8a"]:
         cmd = " ".join(
             [
                 DOCKER_RUN,
@@ -346,7 +348,5 @@ def generate_codeml_cmd(
             ]
         )
     else:
-        raise NotImplementedError(
-            "ERROR: simulation method %s not implemented" % method
-        )
+        raise NotImplementedError("ERROR: codml method %s not implemented" % method)
     return cmd
