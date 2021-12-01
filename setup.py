@@ -1,7 +1,7 @@
 # coding: utf-8
 
 """
-    Execution Framework
+    bioinformatics tools
 
     bintools
 
@@ -20,7 +20,7 @@ VERSION = "1.0.0"
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 
-REQUIRES = ["numpy>=1.18.1", "pandas>=1.0.3"]
+REQUIRES = ["numpy>=1.19.2", "pandas>=1.3.4"]
 
 setup(
     name=NAME,
