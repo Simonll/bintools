@@ -114,3 +114,25 @@ class workflow:
 
     def generate_log_file(self, output: str, dir: str) -> str:
         return "2> " + self.get_dir(type="local", dir=dir) + output + ".log"
+
+    def get_config_wrapper(self, yaml_file: pathlib.Path) -> Optional[Dict[Any, Any]]:
+        config: Optional[Dict[Any, Any]] = get_yaml_config(yaml_file=yaml_file)
+        if config is None:
+            return None
+        if self.test:
+            if "test" not in config:
+                print("something wrong with %s " % str(yaml_file))
+                raise RuntimeError
+            return config["test"]
+        else:
+            if "exp" not in config:
+                print("something wrong with %s " % str(yaml_file))
+                raise RuntimeError
+            return config["exp"]
+
+    def mapping(self, dir: str) -> str:
+        return (
+            self.get_dir(type="local", dir=dir)
+            + ":"
+            + self.get_dir(type="mapped", dir=dir)
+        )
