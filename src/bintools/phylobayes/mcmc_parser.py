@@ -3,7 +3,9 @@ from io import TextIOWrapper
 from itertools import takewhile
 from pathlib import Path
 from typing import Dict
+from typing import Iterator
 from typing import List
+from typing import Optional
 from typing import Union
 
 import numpy as np
@@ -16,18 +18,27 @@ class posterior:
     abstract class of posterior distribution
     """
 
-    def __init__(self, mcmc_path: Path, burnin: int):
-        self.mcmc_path: Path = mcmc_path
+    def __init__(
+        self,
+        list_of_sampleID: List[int],
+        list_of_trees: List[str],
+        list_of_phi: List[List[float]],
+        list_of_rho: List[List[float]],
+        list_of_omega: List[float],
+        burnin: int = 0,
+    ) -> None:
+        self.list_of_sampleID: List[int] = list_of_sampleID
+        self.list_of_trees: List[str] = list_of_trees
+        self.list_of_phi: List[List[float]] = list_of_phi
+        self.list_of_rho: List[List[float]] = list_of_rho
+        self.list_of_omega: List[float] = list_of_omega
         self.burnin: int = burnin
-        assert check_path(self.mcmc_path)
-        assert burnin >= 0
-        self.list_of_chainID: List[int] = []
 
     def __sizeof__(self) -> int:
-        return len(self.list_of_chainID)
+        return len(self.list_of_sampleID)
 
     @abc.abstractmethod
-    def parse_mcmc(self):
+    def parse_mcmc(self, mcmc_path: Path, burnin: int):
         """
         parses mcmc
         """
@@ -54,42 +65,61 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
     need to read MCMC + ABC parameter values
     """
 
-    def __init__(self, mcmc_path: Path, abc_path: Path, burnin: int):
-        super().__init__(mcmc_path=mcmc_path, burnin=burnin)
+    def __init__(
+        self,
+        list_of_sampleID: List[int],
+        list_of_trees: List[str],
+        list_of_phi: List[List[float]],
+        list_of_rho: List[List[float]],
+        list_of_omega: List[float],
+        number_of_aa_profiles: int,
+        list_of_aa_profiles: List[List[List[float]]],
+        list_of_alloc: List[List[int]],
+        burnin: int = 0,
+    ):
+        super().__init__(
+            list_of_sampleID=list_of_sampleID,
+            list_of_trees=list_of_trees,
+            list_of_phi=list_of_phi,
+            list_of_rho=list_of_rho,
+            list_of_omega=list_of_omega,
+            burnin=burnin,
+        )
+        self.number_of_aa_profiles: int = number_of_aa_profiles
+        self.list_of_aa_profiles: List[List[List[float]]] = list_of_aa_profiles
+        self.list_of_alloc: List[List[int]] = list_of_alloc
 
-        self.list_of_trees: List[str] = []
-        self.list_of_phi: List[List[float]] = []
-        self.list_of_rho: List[List[float]] = []
-        self.list_of_omega: List[float] = []
-        self.number_of_aa_profiles: int = -1
-        self.list_of_aa_profiles: List[List[List[float]]] = []
-        self.list_of_alloc: List[List[int]] = []
-        self.parse_mcmc()
-
-    def parse_mcmc(self) -> bool:
+    def parse_mcmc(
+        self, mcmc_path: Path, burnin: int = 0
+    ) -> Optional["posterior_MGTRtsCpG_SNCatAA"]:
         """
         parses mcmc
         """
+        list_of_sampleID: List[int] = []
+        list_of_trees: List[str] = []
+        list_of_phi: List[List[float]] = []
+        list_of_rho: List[List[float]] = []
+        list_of_omega: List[float] = []
+        number_of_aa_profiles: int = 0
+        list_of_aa_profiles: List[List[List[float]]] = []
+        list_of_alloc: List[List[int]] = []
         try:
-            with open(self.mcmc_path, "r") as hl:
-                lines = hl.readlines()
-                self.number_of_aa_profiles = int(lines[11])
-                print(self.number_of_aa_profiles)
-                for chainID, chunck in enumerate(
-                    chunck_chain(
-                        lines=lines, chunck_size=self.number_of_aa_profiles + 15
-                    )
+            with open(mcmc_path, "r") as hl:
+                lines: List[str] = hl.readlines()
+                number_of_aa_profiles = int(lines[11])
+                for sampleID, chunck in enumerate(
+                    chunck_chain(lines=lines, chunck_size=number_of_aa_profiles + 15)
                 ):
-                    self.list_of_chainID += [chainID]
+                    list_of_sampleID += [sampleID]
                     try:
-                        self.list_of_trees += [chunck[0].strip()]
+                        list_of_trees += [chunck[0].strip()]
                     except Exception as e:
                         print(
                             "something wrong with %s %s" % ("parsing the tree", str(e))
                         )
 
                     try:
-                        self.list_of_phi += [
+                        list_of_phi += [
                             np.fromstring(chunck[3], dtype=float, sep="\t").tolist()
                         ]
                     except Exception as e:
@@ -98,7 +128,7 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
                         )
 
                     try:
-                        self.list_of_rho += [
+                        list_of_rho += [
                             np.fromstring(chunck[5], dtype=float, sep="\t").tolist()
                         ]
                     except Exception as e:
@@ -107,7 +137,7 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
                         )
 
                     try:
-                        self.list_of_omega += [float(chunck[9].strip())]
+                        list_of_omega += [float(chunck[9].strip())]
                     except Exception as e:
                         print(
                             "something wrong with %s %s" % ("parsing the omega", str(e))
@@ -115,11 +145,11 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
 
                     try:
                         cur_list_of_aa_profiles: List[List[float]] = []
-                        for i in range(14, (self.number_of_aa_profiles + 14)):
+                        for i in range(14, (number_of_aa_profiles + 14)):
                             cur_list_of_aa_profiles += [
                                 np.fromstring(chunck[i], dtype=float, sep="\t").tolist()
                             ]
-                        self.list_of_aa_profiles += [cur_list_of_aa_profiles]
+                        list_of_aa_profiles += [cur_list_of_aa_profiles]
                     except Exception as e:
                         print(
                             "something wrong with %s %s"
@@ -127,7 +157,7 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
                         )
 
                     try:
-                        self.list_of_alloc += [
+                        list_of_alloc += [
                             np.fromstring(
                                 chunck[self.number_of_aa_profiles + 14],
                                 dtype=int,
@@ -140,13 +170,42 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
                             % ("parsing the aa profile allocation", str(e))
                         )
 
-            return True
-        except Exception as e:
-            print(
-                "something wrong %s when parsing %s"
-                % (str(e), self.mcmc_path.__str__())
+            return posterior_MGTRtsCpG_SNCatAA(
+                list_of_sampleID=list_of_sampleID,
+                list_of_trees=list_of_trees,
+                list_of_phi=list_of_phi,
+                list_of_rho=list_of_rho,
+                list_of_omega=list_of_omega,
+                number_of_aa_profiles=number_of_aa_profiles,
+                list_of_aa_profiles=list_of_aa_profiles,
+                list_of_alloc=list_of_alloc,
+                burnin=burnin,
             )
-            return False
+        except Exception as e:
+            print("something wrong %s when parsing %s" % (str(e), mcmc_path.__str__()))
+            return None
+
+    def sample(self) -> Dict[str, Union[float, str]]:
+        """
+        samples paramter values from burnin to end of mcmc and return dictionary
+        """
+        u_int: int = np.random.randint(self.burnin, len(self.list_of_rho))
+        dict_of_params: Dict[str, Union[float, str]] = {
+            "phi_A": self.list_of_phi[u_int][0],
+            "phi_C": self.list_of_phi[u_int][1],
+            "phi_G": self.list_of_phi[u_int][2],
+            "phi_T": self.list_of_phi[u_int][3],
+            "rho_AC": self.list_of_rho[u_int][0],
+            "rho_AG": self.list_of_rho[u_int][1],
+            "rho_AT": self.list_of_rho[u_int][2],
+            "rho_CG": self.list_of_rho[u_int][3],
+            "rho_CT": self.list_of_rho[u_int][4],
+            "rho_TG": self.list_of_rho[u_int][5],
+            "omega": self.list_of_omega[u_int],
+            "tree": self.list_of_trees[u_int],
+        }
+
+        return dict_of_params
 
 
 class posterior_M0_GTR(posterior):
@@ -154,50 +213,75 @@ class posterior_M0_GTR(posterior):
     posterior distribution of M0-GTR F1 x 4 (Muse and Goat 1994) generated under Phylobayes-MPI
     """
 
-    def __init__(self, mcmc_path: Path, burnin: int):
-        super().__init__(mcmc_path=mcmc_path, burnin=burnin)
+    def __init__(
+        self,
+        list_of_sampleID: List[int],
+        list_of_trees: List[str],
+        list_of_phi: List[List[float]],
+        list_of_rho: List[List[float]],
+        list_of_omega: List[float],
+        burnin: int = 0,
+    ):
+        super().__init__(
+            list_of_sampleID=list_of_sampleID,
+            list_of_trees=list_of_trees,
+            list_of_phi=list_of_phi,
+            list_of_rho=list_of_rho,
+            list_of_omega=list_of_omega,
+            burnin=burnin,
+        )
 
-        self.list_of_trees: List[str] = []
-        self.list_of_phi: List[List[float]] = []
-        self.list_of_rho: List[List[float]] = []
-        self.list_of_omega: List[float] = []
-        self.parse_mcmc()
-
-    def parse_mcmc(self) -> bool:
+    @classmethod
+    def parse_mcmc(
+        cls, mcmc_path: Path, burnin: int = 0
+    ) -> Optional["posterior_M0_GTR"]:
         """
         parses mcmc
         """
+        list_of_sampleID: List[int] = []
+        list_of_trees: List[str] = []
+        list_of_phi: List[List[float]] = []
+        list_of_rho: List[List[float]] = []
+        list_of_omega: List[float] = []
+
         try:
-            with open(self.mcmc_path, "r") as hl:
-                lines = hl.readlines()
-                k = 0
+            with open(mcmc_path, "r") as hl:
+                lines: List[str] = hl.readlines()
+                k: int = 0
+                sampleID: int = 0
                 for line in lines:
                     if k == 0:
-                        self.list_of_trees += [line.strip()]
+                        list_of_trees += [line.strip()]
                     if k == 3:
-                        self.list_of_phi += [
+                        list_of_phi += [
                             np.fromstring(line, dtype=float, sep="\t").tolist()
                         ]
                     if k == 5:
-                        self.list_of_rho += [
+                        list_of_rho += [
                             np.fromstring(line, dtype=float, sep="\t").tolist()
                         ]
                     if k == 9:
-                        self.list_of_omega += np.fromstring(
+                        list_of_omega += np.fromstring(
                             line, dtype=float, sep="\t"
                         ).tolist()
 
                     k += 1
                     if k == 15:
+                        list_of_sampleID += [sampleID]
+                        sampleID += 1
                         k = 0
 
-            return True
-        except Exception as e:
-            print(
-                "something wrong %s when parsing %s"
-                % (str(e), self.mcmc_path.__str__())
+            return posterior_M0_GTR(
+                list_of_sampleID=list_of_sampleID,
+                list_of_trees=list_of_trees,
+                list_of_phi=list_of_phi,
+                list_of_rho=list_of_rho,
+                list_of_omega=list_of_omega,
+                burnin=burnin,
             )
-            return False
+        except Exception as e:
+            print("something wrong %s when parsing %s" % (str(e), mcmc_path.__str__()))
+            return None
 
     def sample(self) -> Dict[str, Union[float, str]]:
         """
@@ -299,27 +383,48 @@ class posterior_M0_GTR(posterior):
             return False
 
     @classmethod
-    def read(cls, input_file: Path):
+    def read(cls, input_file: Path) -> Optional["posterior_M0_GTR"]:
+        list_of_sampleID: List[int] = []
+        list_of_trees: List[str] = []
+        list_of_phi: List[List[float]] = []
+        list_of_rho: List[List[float]] = []
+        list_of_omega: List[float] = []
         if not check_path(input_file):
             raise RuntimeError
 
-        with open(str(input_file), "r") as file_handler:
+        try:
+            with open(str(input_file), "r") as file_handler:
 
-            lines = iter(file_handler.readlines())
-            for line in takewhile(lambda x: x is not None, lines):
-                cls.list_of_trees += [line.strip()]
+                lines: Iterator[str] = iter(file_handler.readlines())
+                sampleID: int = 0
+                for line in takewhile(lambda x: x is not None, lines):
+                    list_of_trees += [line.strip()]
 
-                line = next(lines)
-                cls.list_of_phi += [
-                    np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
-                ]
+                    line = next(lines)
+                    list_of_phi += [
+                        np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
+                    ]
 
-                line = next(lines)
-                cls.list_of_rho += [
-                    np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
-                ]
+                    line = next(lines)
+                    list_of_rho += [
+                        np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
+                    ]
 
-                line = next(lines)
-                cls.list_of_omega += [
-                    np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
-                ]
+                    line = next(lines)
+                    list_of_omega += [
+                        np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
+                    ]
+                    list_of_sampleID += [sampleID]
+                    sampleID += 1
+
+                return posterior_M0_GTR(
+                    list_of_sampleID=list_of_sampleID,
+                    list_of_trees=list_of_trees,
+                    list_of_phi=list_of_phi,
+                    list_of_rho=list_of_rho,
+                    list_of_omega=list_of_omega,
+                )
+
+        except Exception as e:
+            print("something wrong %s, %s" % (input_file, str(e)))
+            return None
