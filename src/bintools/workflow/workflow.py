@@ -49,6 +49,16 @@ class workflow:
             except Exception as e:
                 print("something wrong with %s dir" % "data")
 
+            try:
+                self.tables_dir: str = workflow_config["tables"]
+            except Exception as e:
+                print("something wrong with %s dir" % "tables")
+
+            try:
+                self.figures_dir: str = workflow_config["figures"]
+            except Exception as e:
+                print("something wrong with %s dir" % "figures")
+
             for k, v in workflow_config.items():
                 if k not in self.list_of_preexisting_dirs:
                     self.dict_of_dirs[k] = v
@@ -59,7 +69,7 @@ class workflow:
 
     def make_dirs(self) -> bool:
         for k in self.dict_of_dirs.keys():
-            if k not in ["root_local", "scripts", "data"]:
+            if k not in ["root_local", "scripts", "data", "tables", "figures"]:
                 try:
                     os.makedirs(self.get_dir(type="local", dir=k), exist_ok=True)
                     print("dir: %s created" % self.get_dir(type="local", dir=k))
@@ -79,6 +89,10 @@ class workflow:
             raise RuntimeError
 
         if type == "local":
+            if dir == "tables":
+                return self.root_local_dir[:-1] + self.tables_dir
+            if dir == "figures":
+                return self.root_local_dir[:-1] + self.figures_dir
             if dir == "scripts":
                 return self.root_local_dir[:-1] + self.scripts_dir
             if dir == "data":
@@ -101,6 +115,10 @@ class workflow:
             if dir in ["scripts"]:
                 print("something wrong with %s dir" % dir)
                 raise RuntimeError
+            if dir == "figures":
+                return self.figures_dir
+            if dir == "tables":
+                return self.tables_dir
             if dir == "scripts":
                 return self.scripts_dir
             if dir == "data":
