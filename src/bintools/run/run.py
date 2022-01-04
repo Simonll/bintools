@@ -318,6 +318,18 @@ def generate_simu_cmd(
                 logger if logger is not None else "",
             ]
         )
+    if method == "ratesFromLeaves":
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "ratesFromLeaves",
+                joint_kwargs(**kwargs),
+                config_filename,
+                logger if logger is not None else "",
+            ]
+        )
     else:
         raise NotImplementedError(
             "ERROR: simulation method %s not implemented" % method
