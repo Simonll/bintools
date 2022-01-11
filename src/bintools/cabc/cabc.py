@@ -19,16 +19,16 @@ def generate_cabc_conf(method: str, **kwargs) -> List[str]:
         conf += ["#PARAM" + "\t" + kwargs["param"]]
         conf += ["#MAP" + "\t" + kwargs["map"]]
         conf += ["#SAMPLING" + "\t" + kwargs["sampling"]]
-        conf += ["#RUN" + kwargs["nrun"]]
-        conf += ["#NTHREADS" + kwargs["nthreads"]]
+        conf += ["#RUN" + "\t" + kwargs["nrun"]]
+        conf += ["#NTHREADS" + "\t" + kwargs["nthreads"]]
         conf += ["#TRANS no"]
-        conf += ["#OUTPUT" + kwargs["output"]]
+        conf += ["#OUTPUT" + "\t" + kwargs["output"]]
         conf += [
             "\t".join(
                 ["#LOCALPARAM"]
                 + [kwargs["localparam"]]
-                + ["-d " + kwargs["align"]]
-                + ["-chain " + kwargs["chainname"]]
+                + ["-d" + "\t"  + kwargs["align"]]
+                + ["-chain" + "\t" + kwargs["chainname"]]
             )
         ]
     else:
