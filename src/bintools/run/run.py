@@ -306,7 +306,21 @@ def generate_simu_cmd(
     **kwargs
 ) -> Optional[str]:
     cmd: Optional[str] = None
-    if method == "M7":
+
+    if method == "M0":
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "LFP",
+                joint_kwargs(**kwargs),
+                config_filename,
+                logger if logger is not None else "",
+            ]
+        )
+
+    elif method == "M7":
         cmd = " ".join(
             [
                 DOCKER_RUN,
