@@ -318,7 +318,7 @@ def generate_simu_cmd(
                 logger if logger is not None else "",
             ]
         )
-    if method == "ratesFromLeaves":
+    elif method == "ratesFromLeaves":
         cmd = " ".join(
             [
                 DOCKER_RUN,
