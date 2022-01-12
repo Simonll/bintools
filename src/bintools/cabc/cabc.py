@@ -13,7 +13,7 @@ from bintools.cabc.utils import transform
 
 def generate_cabc_conf(method: str, **kwargs) -> List[str]:
     conf: Optional[List[str]] = None
-    if method in ["M0", "M7", "M8"]:
+    if method in ["M0", "M7", "M8", "CodonMutSelFinite", "CodonMutSelSBDP"]:
         conf = []
         conf += ["#SUMMARIES" + "\t" + kwargs["ss"]]
         conf += ["#PARAM" + "\t" + kwargs["param"]]

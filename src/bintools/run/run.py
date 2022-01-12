@@ -307,7 +307,7 @@ def generate_simu_cmd(
 ) -> Optional[str]:
     cmd: Optional[str] = None
 
-    if method == "M0":
+    if method in ["CodonMutSelFinite", "CodonMutSelSBDP"]:
         cmd = " ".join(
             [
                 DOCKER_RUN,
@@ -320,7 +320,7 @@ def generate_simu_cmd(
             ]
         )
 
-    elif method == "M7":
+    elif method in ["M0", "M7", "M8"]:
         cmd = " ".join(
             [
                 DOCKER_RUN,
