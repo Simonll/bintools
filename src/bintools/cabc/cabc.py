@@ -13,7 +13,7 @@ from bintools.cabc.utils import transform
 
 def generate_cabc_conf(method: str, **kwargs) -> List[str]:
     conf: Optional[List[str]] = None
-    if method == "M7":
+    if method in ["M0", "M7", "M8"]:
         conf = []
         conf += ["#SUMMARIES" + "\t" + kwargs["ss"]]
         conf += ["#PARAM" + "\t" + kwargs["param"]]
@@ -27,7 +27,7 @@ def generate_cabc_conf(method: str, **kwargs) -> List[str]:
             "\t".join(
                 ["#LOCALPARAM"]
                 + [kwargs["localparam"]]
-                + ["-d" + "\t"  + kwargs["align"]]
+                + ["-d" + "\t" + kwargs["align"]]
                 + ["-chain" + "\t" + kwargs["chainname"]]
             )
         ]
