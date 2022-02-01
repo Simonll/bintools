@@ -367,9 +367,8 @@ class posterior_M0_GTR(posterior):
                 )
             )
             file_handler.write("\n")
-            if (
-                "omega_site" in dict_of_params
-                and type(dict_of_params["omega_site"]) == Dict[int, float]
+            if "omega_site" in dict_of_params and isinstance(
+                dict_of_params["omega_site"], Dict
             ):
                 file_handler.write(
                     "\t".join(
