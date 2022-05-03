@@ -8,6 +8,7 @@ from typing import TextIO
 
 import pandas as pd
 from Bio.Align import MultipleSeqAlignment
+from Bio.Data import CodonTable
 from Bio.Seq import MutableSeq
 from Bio.SeqRecord import SeqRecord
 
@@ -49,10 +50,30 @@ class ali:
             records += [SeqRecord(MutableSeq("".join([j for i, j in v.items()])), id=k)]
         return MultipleSeqAlignment(records=records)
 
+    def translate(self, sequence: str):
+        codon_table = CodonTable.ambiguous_generic_by_name[self.genetic_code]
+        sequence = sequence.upper()
+
+        n: int = len(sequence)
+        if n % 3 != 0:
+            print("something wrong with sequence length %d " % n)
+            raise RuntimeError
+        amino_acids: List[str] = []
+        for i in range(0, n - n % 3, 3):
+            codon = sequence[i : i + 3]
+            if codon_table.forward_table.__contains__(codon):
+                amino_acids.append(codon_table.forward_table[codon])
+            else:
+                amino_acids.append("-")
+        return "".join(amino_acids)
+
     def get_biopython_align_codon2aa(self) -> MultipleSeqAlignment:
         records: List[SeqRecord] = []
         for k, v in self.dict_of_seq.items():
-            records += [SeqRecord(MutableSeq("".join([j for i, j in v.items()])), id=k)]
+            amino_acids: str = self.translate(
+                sequence="".join([j for i, j in v.items()])
+            )
+            records += [SeqRecord(MutableSeq(amino_acids), id=k)]
         return MultipleSeqAlignment(records=records)
 
 
