@@ -188,7 +188,7 @@ def read_phylip(fh: TextIO) -> ali:
     n_taxa, n_site = lines[0].split("\t")
     dict_of_seq: Dict[str, Dict[int, str]] = {}
     for l in range(1, len(lines)):
-        sp_name, seq = lines[l].split("  ")
+        sp_name, seq = lines[l].split()
         dict_of_seq[sp_name.strip()] = {i: j for i, j in enumerate(list(seq.strip()))}
 
     return ali(
