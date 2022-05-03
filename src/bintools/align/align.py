@@ -25,6 +25,9 @@ class ali:
         self.n_site: int = n_site
         self.dict_of_seq: Dict[str, Dict[int, str]] = dict_of_seq
 
+    def set_genetic_code(self, table: str):
+        self.genetic_code = table
+
     def get_genetic_code(self) -> str:
         return self.genetic_code
 
@@ -41,6 +44,12 @@ class ali:
         yield self.dict_of_seq.items()
 
     def get_biopython_align(self) -> MultipleSeqAlignment:
+        records: List[SeqRecord] = []
+        for k, v in self.dict_of_seq.items():
+            records += [SeqRecord(MutableSeq("".join([j for i, j in v.items()])), id=k)]
+        return MultipleSeqAlignment(records=records)
+
+    def get_biopython_align_codon2aa(self) -> MultipleSeqAlignment:
         records: List[SeqRecord] = []
         for k, v in self.dict_of_seq.items():
             records += [SeqRecord(MutableSeq("".join([j for i, j in v.items()])), id=k)]
@@ -149,7 +158,7 @@ def read_fasta(fh: IO[Any]) -> ali:
         n_site=df.shape[1],
         n_taxa=df.shape[0],
         dict_of_seq=dict_of_seq,
-        genetic_code="standard",
+        genetic_code="Standard",
     )
 
 
