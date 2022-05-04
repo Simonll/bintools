@@ -195,7 +195,7 @@ def read_phylip(fh: TextIO) -> ali:
         n_site=int(n_site),
         n_taxa=int(n_taxa),
         dict_of_seq=dict_of_seq,
-        genetic_code="standard",
+        genetic_code="Standard",
     )
 
 
