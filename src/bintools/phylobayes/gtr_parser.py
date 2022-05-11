@@ -8,8 +8,8 @@ from typing import Optional
 from typing import Union
 
 import numpy as np
-from mcmc_parser import posterior
 
+from bintools.phylobayes.mcmc_parser import posterior
 from bintools.utils.utils import check_path
 
 
@@ -120,7 +120,6 @@ class posterior_GTR(posterior):
             "rho_CG": tv,
             "rho_CT": ts,
             "rho_TG": tv,
-            "omega": self.list_of_omega[u_int],
             "tree": self.list_of_trees[u_int],
         }
 

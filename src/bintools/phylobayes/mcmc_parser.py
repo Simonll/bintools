@@ -24,14 +24,12 @@ class posterior:
         list_of_trees: List[str],
         list_of_phi: List[List[float]],
         list_of_rho: List[List[float]],
-        list_of_omega: List[float],
         burnin: int = 0,
     ) -> None:
         self.list_of_sampleID: List[int] = list_of_sampleID
         self.list_of_trees: List[str] = list_of_trees
         self.list_of_phi: List[List[float]] = list_of_phi
         self.list_of_rho: List[List[float]] = list_of_rho
-        self.list_of_omega: List[float] = list_of_omega
         self.burnin: int = burnin
 
     def __sizeof__(self) -> int:
@@ -82,9 +80,9 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
             list_of_trees=list_of_trees,
             list_of_phi=list_of_phi,
             list_of_rho=list_of_rho,
-            list_of_omega=list_of_omega,
             burnin=burnin,
         )
+        self.list_of_omega: List[float] = list_of_omega
         self.number_of_aa_profiles: int = number_of_aa_profiles
         self.list_of_aa_profiles: List[List[List[float]]] = list_of_aa_profiles
         self.list_of_alloc: List[List[int]] = list_of_alloc
@@ -227,9 +225,9 @@ class posterior_M0_GTR(posterior):
             list_of_trees=list_of_trees,
             list_of_phi=list_of_phi,
             list_of_rho=list_of_rho,
-            list_of_omega=list_of_omega,
             burnin=burnin,
         )
+        self.list_of_omega: List[float] = list_of_omega
 
     @classmethod
     def parse_mcmc(
