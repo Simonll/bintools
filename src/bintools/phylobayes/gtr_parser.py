@@ -52,17 +52,16 @@ class posterior_GTR(posterior):
                 for line in lines:
                     if k == 0:
                         list_of_trees += [line.strip()]
-                    if k == 9:
-                        list_of_phi += [
-                            np.fromstring(line, dtype=float, sep="\t").tolist()
-                        ]
                     if k == 7:
                         list_of_rho += [
                             np.fromstring(line, dtype=float, sep="\t").tolist()
                         ]
-
+                    if k == 9:
+                        list_of_phi += [
+                            np.fromstring(line, dtype=float, sep="\t").tolist()
+                        ]
                     k += 1
-                    if k == 15:
+                    if k == 11:
                         list_of_sampleID += [sampleID]
                         sampleID += 1
                         k = 0
