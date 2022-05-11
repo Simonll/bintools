@@ -9,6 +9,30 @@ DOCKER_RUN: str = (
 )
 
 
+def generate_iqtree_cmd(
+    method: str,
+    mapping: str,
+    logger: Optional[str] = None,
+    image: str = "evolbioinfo/iqtree:v2.2.0",
+    **kwargs
+) -> Optional[str]:
+    cmd: Optional[str] = None
+    if method == "iqtree2":
+
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "iqtree2",
+                joint_kwargs(**kwargs),
+                logger if logger is not None else "",
+            ]
+        )
+
+    return cmd
+
+
 def generate_phylobayes_cmd(
     method: str,
     mapping: str,
