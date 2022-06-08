@@ -72,6 +72,21 @@ def generate_phylobayes_cmd(
                 logger if logger is not None else "",
             ]
         )
+    if method == "ancestral":
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "ancestral",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger if logger is not None else "",
+            ]
+        )
     return cmd
 
 
