@@ -62,7 +62,10 @@ class ali:
         for i in range(0, n - n % 3, 3):
             codon = sequence[i : i + 3]
             if codon_table.forward_table.__contains__(codon):
-                amino_acids.append(codon_table.forward_table[codon])
+                if codon_table.forward_table[codon] == "X":
+                    amino_acids.append("-")
+                else:
+                    amino_acids.append(codon_table.forward_table[codon])
             else:
                 amino_acids.append("-")
         return "".join(amino_acids)
