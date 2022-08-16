@@ -62,7 +62,28 @@ class ali:
         for i in range(0, n - n % 3, 3):
             codon = sequence[i : i + 3]
             if codon_table.forward_table.__contains__(codon):
-                if codon_table.forward_table[codon] == "X":
+                if codon_table.forward_table[codon] not in [
+                    "A",
+                    "C",
+                    "D",
+                    "E",
+                    "F",
+                    "G",
+                    "H",
+                    "I",
+                    "K",
+                    "L",
+                    "M",
+                    "N",
+                    "P",
+                    "Q",
+                    "R",
+                    "S",
+                    "T",
+                    "V",
+                    "W",
+                    "Y",
+                ]:
                     amino_acids.append("-")
                 else:
                     amino_acids.append(codon_table.forward_table[codon])
