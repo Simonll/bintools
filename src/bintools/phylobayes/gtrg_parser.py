@@ -5,6 +5,7 @@ from typing import Dict
 from typing import Iterator
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 import numpy as np
@@ -104,6 +105,58 @@ class posterior_GTRG(posterior):
             "alpha": self.list_of_alpha[u_int],
         }
 
+        return dict_of_params
+
+    def get_posterior_mean(self):
+        """
+        return posterior mean
+        """
+        dict_of_params: Dict[str, Tuple[float, float]] = {
+            "phi_A": (
+                np.mean([i[0] for i in self.list_of_phi]),
+                np.std([i[0] for i in self.list_of_phi]),
+            ),
+            "phi_C": (
+                np.mean([i[1] for i in self.list_of_phi]),
+                np.std([i[1] for i in self.list_of_phi]),
+            ),
+            "phi_G": (
+                np.mean([i[2] for i in self.list_of_phi]),
+                np.std([i[2] for i in self.list_of_phi]),
+            ),
+            "phi_T": (
+                np.mean([i[3] for i in self.list_of_phi]),
+                np.std([i[3] for i in self.list_of_phi]),
+            ),
+            "rho_AC": (
+                np.mean([i[0] for i in self.list_of_rho]),
+                np.std([i[0] for i in self.list_of_rho]),
+            ),
+            "rho_AG": (
+                np.mean([i[1] for i in self.list_of_rho]),
+                np.std([i[1] for i in self.list_of_rho]),
+            ),
+            "rho_AT": (
+                np.mean([i[2] for i in self.list_of_rho]),
+                np.std([i[2] for i in self.list_of_rho]),
+            ),
+            "rho_CG": (
+                np.mean([i[3] for i in self.list_of_rho]),
+                np.std([i[3] for i in self.list_of_rho]),
+            ),
+            "rho_CT": (
+                np.mean([i[4] for i in self.list_of_rho]),
+                np.std([i[4] for i in self.list_of_rho]),
+            ),
+            "rho_TG": (
+                np.mean([i[5] for i in self.list_of_rho]),
+                np.std([i[5] for i in self.list_of_rho]),
+            ),
+            "alpha": (
+                np.mean([i for i in self.list_of_alpha]),
+                np.std([i for i in self.list_of_alpha]),
+            ),
+        }
         return dict_of_params
 
     def sample_hky(self):
