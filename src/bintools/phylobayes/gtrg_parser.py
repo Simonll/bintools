@@ -113,44 +113,44 @@ class posterior_GTRG(posterior):
         """
         dict_of_params: Dict[str, Tuple[float, float]] = {
             "phi_A": (
-                np.mean([i[0] for i in self.list_of_phi]),
-                np.std([i[0] for i in self.list_of_phi]),
+                np.mean([i[0] / np.sum(i) for i in self.list_of_phi]),
+                np.std([i[0] / np.sum(i) for i in self.list_of_phi]),
             ),
             "phi_C": (
-                np.mean([i[1] for i in self.list_of_phi]),
-                np.std([i[1] for i in self.list_of_phi]),
+                np.mean([i[1] / np.sum(i) for i in self.list_of_phi]),
+                np.std([i[1] / np.sum(i) for i in self.list_of_phi]),
             ),
             "phi_G": (
-                np.mean([i[2] for i in self.list_of_phi]),
-                np.std([i[2] for i in self.list_of_phi]),
+                np.mean([i[2] / np.sum(i) for i in self.list_of_phi]),
+                np.std([i[2] / np.sum(i) for i in self.list_of_phi]),
             ),
             "phi_T": (
-                np.mean([i[3] for i in self.list_of_phi]),
-                np.std([i[3] for i in self.list_of_phi]),
+                np.mean([i[3] / np.sum(i) for i in self.list_of_phi]),
+                np.std([i[3] / np.sum(i) for i in self.list_of_phi]),
             ),
             "rho_AC": (
-                np.mean([i[0] for i in self.list_of_rho]),
-                np.std([i[0] for i in self.list_of_rho]),
+                np.mean([i[0] / np.sum(i) for i in self.list_of_rho]),
+                np.std([i[0] / np.sum(i) for i in self.list_of_rho]),
             ),
             "rho_AG": (
-                np.mean([i[1] for i in self.list_of_rho]),
-                np.std([i[1] for i in self.list_of_rho]),
+                np.mean([i[1] / np.sum(i) for i in self.list_of_rho]),
+                np.std([i[1] / np.sum(i) for i in self.list_of_rho]),
             ),
             "rho_AT": (
-                np.mean([i[2] for i in self.list_of_rho]),
-                np.std([i[2] for i in self.list_of_rho]),
+                np.mean([i[2] / np.sum(i) for i in self.list_of_rho]),
+                np.std([i[2] / np.sum(i) for i in self.list_of_rho]),
             ),
             "rho_CG": (
-                np.mean([i[3] for i in self.list_of_rho]),
-                np.std([i[3] for i in self.list_of_rho]),
+                np.mean([i[3] / np.sum(i) for i in self.list_of_rho]),
+                np.std([i[3] / np.sum(i) for i in self.list_of_rho]),
             ),
             "rho_CT": (
-                np.mean([i[4] for i in self.list_of_rho]),
-                np.std([i[4] for i in self.list_of_rho]),
+                np.mean([i[4] / np.sum(i) for i in self.list_of_rho]),
+                np.std([i[4] / np.sum(i) for i in self.list_of_rho]),
             ),
             "rho_TG": (
-                np.mean([i[5] for i in self.list_of_rho]),
-                np.std([i[5] for i in self.list_of_rho]),
+                np.mean([i[5] / np.sum(i) for i in self.list_of_rho]),
+                np.std([i[5] / np.sum(i) for i in self.list_of_rho]),
             ),
             "alpha": (
                 np.mean([i for i in self.list_of_alpha]),
