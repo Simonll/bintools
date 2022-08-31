@@ -13,27 +13,39 @@ def compute_CpG(seq: str) -> Dict[str, float]:
         sub_sample(seq=seq, start=1, stop=len(seq), step=1),
     ):
         if (i == "C" or i == "c") and (j == "G" or j == "g"):
-            dict_of_stats["cpg"] += 1
+            if "CpG" in dict_of_stats:
+                dict_of_stats["CpG"] += 1
+            else:
+                dict_of_stats["CpG"] = 1
 
     for i, j in zip(
         sub_sample(seq=seq, start=0, stop=len(seq), step=3),
         sub_sample(seq=seq, start=1, stop=len(seq), step=3),
     ):
         if (i == "C" or i == "c") and (j == "G" or j == "g"):
-            dict_of_stats["cpg_12"] += 1
+            if "CpG_12" in dict_of_stats:
+                dict_of_stats["CpG_12"] += 1
+            else:
+                dict_of_stats["CpG_12"] = 1
 
     for i, j in zip(
         sub_sample(seq=seq, start=1, stop=len(seq), step=3),
         sub_sample(seq=seq, start=2, stop=len(seq), step=3),
     ):
         if (i == "C" or i == "c") and (j == "G" or j == "g"):
-            dict_of_stats["cpg_23"] += 1
+            if "CpG_23" in dict_of_stats:
+                dict_of_stats["CpG_23"] += 1
+            else:
+                dict_of_stats["CpG_23"] = 1
 
     for i, j in zip(
         sub_sample(seq=seq, start=2, stop=len(seq), step=3),
         sub_sample(seq=seq, start=3, stop=len(seq), step=3),
     ):
         if (i == "C" or i == "c") and (j == "G" or j == "g"):
-            dict_of_stats["cpg_31"] += 1
+            if "CpG_31" in dict_of_stats:
+                dict_of_stats["CpG_31"] += 1
+            else:
+                dict_of_stats["CpG_31"] = 1
 
     return {k: v / (len(seq) - 1) for k, v in dict_of_stats.items()}
