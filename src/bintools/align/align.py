@@ -12,6 +12,8 @@ from Bio.Data import CodonTable
 from Bio.Seq import MutableSeq
 from Bio.SeqRecord import SeqRecord
 
+from bintools.align.utils import sub_sample
+
 
 class ali:
     def __init__(
@@ -99,10 +101,6 @@ class ali:
             )
             records += [SeqRecord(MutableSeq(amino_acids), id=k)]
         return MultipleSeqAlignment(records=records)
-
-
-def sub_sample(seq: str, start: int, stop: int, step: int) -> str:
-    return "".join([seq[l] for l in range(start, stop, step)])
 
 
 def write_fasta(fh: IO[Any], defline: str, content: str) -> bool:
