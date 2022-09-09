@@ -207,11 +207,14 @@ def read_fasta(fh: IO[Any]) -> ali:
 
 def read_phylip(fh: TextIO) -> ali:
     lines: List[str] = fh.readlines()
-    n_taxa, n_site = lines[0].split()
+    n_taxa, n_site = lines[0].strip().split()
     dict_of_seq: Dict[str, Dict[int, str]] = {}
     for l in range(1, len(lines)):
-        sp_name, seq = lines[l].split()
-        dict_of_seq[sp_name.strip()] = {i: j for i, j in enumerate(list(seq.strip()))}
+        if lines[l].strip():
+            sp_name, seq = lines[l].strip().split()
+            dict_of_seq[sp_name.strip()] = {
+                i: j for i, j in enumerate(list(seq.strip()))
+            }
 
     return ali(
         n_site=int(n_site),
