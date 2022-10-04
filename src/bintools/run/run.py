@@ -9,6 +9,27 @@ DOCKER_RUN: str = (
 )
 
 
+def generate_phytools_cmd(
+    method: str,
+    mapping: str,
+    logger: Optional[str] = None,
+    image: str = "r-base3.6.3/phytools",
+    **kwargs
+) -> Optional[str]:
+    cmd: Optional[str] = None
+    if method == "fastBM":
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                joint_kwargs(**kwargs),
+                logger if logger is not None else "",
+            ]
+        )
+    return cmd
+
+
 def generate_iqtree_cmd(
     method: str,
     mapping: str,
