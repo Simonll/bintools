@@ -20,7 +20,7 @@ VERSION = "1.0.0"
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 
-REQUIRES = ["numpy>=1.19.2", "pandas>=1.3.4"]
+REQUIRES = ["numpy>=1.19.2", "pandas>=1.1.5"]
 
 setup(
     name=NAME,
