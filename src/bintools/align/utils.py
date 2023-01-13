@@ -5,6 +5,23 @@ def sub_sample(seq: str, start: int, stop: int, step: int) -> str:
     return "".join([seq[l] for l in range(start, stop, step)])
 
 
+def compute_XpY(seq: str, x: str, y: str) -> Dict[str, float]:
+    dict_of_stats: Dict[str, float] = {}
+    assert len(x) == 1 and len(y) == 1
+    XpY: str = x + "p" + y
+    for i, j in zip(
+        sub_sample(seq=seq, start=0, stop=len(seq), step=1),
+        sub_sample(seq=seq, start=1, stop=len(seq), step=1),
+    ):
+        if (i == x.upper() or i == x.lower()) and (j == y.upper() or j == y.lower()):
+            if XpY in dict_of_stats:
+                dict_of_stats[XpY] += 1
+            else:
+                dict_of_stats[XpY] = 1
+
+    return {k: v / (len(seq) - 1) for k, v in dict_of_stats.items()}
+
+
 def compute_CpG(seq: str) -> Dict[str, float]:
     dict_of_stats: Dict[str, float] = {}
 
