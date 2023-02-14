@@ -229,7 +229,7 @@ def generate_datasets_cmd(
             ]
         )
 
-    if method == "summary":
+    elif method == "summary":
         cmd = " ".join(
             [
                 image,
