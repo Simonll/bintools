@@ -351,8 +351,8 @@ def generate_alignment_prank_cmd(
                 "-codon",
                 "-d=" + input,
                 "-o=" + output,
-                "2>" + log,
                 joint_kwargs_(**kwargs),
+                "2>" + log,
             ]
         )
 
