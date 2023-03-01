@@ -347,6 +347,7 @@ def generate_alignment_prank_cmd(
     if method == "codon":
         cmd = " ".join(
             [
+                "prank",
                 "-codon",
                 "-d=" + input,
                 "-o=" + output,
