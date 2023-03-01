@@ -337,11 +337,11 @@ def generate_alignment_mafft_cmd(
 
 
 def generate_alignment_prank_cmd(
-    method: str, codon: str, seqs_to_align_fname: str, aln_fname: str, log_fname: str
+    method: str, seqs_to_align_fname: str, aln_fname: str, log_fname: str
 ):
     cmd: Optional[str] = None
 
-    if codon:
+    if method == "codon":
         cmd = "prank -codon -d=%s -o=%s 1>%s" % (
             shlex.quote(seqs_to_align_fname),
             shlex.quote(aln_fname),
@@ -349,11 +349,7 @@ def generate_alignment_prank_cmd(
         )
 
     else:
-        cmd = "prank -codon -d=%s -o=%s 1>%s" % (
-            shlex.quote(seqs_to_align_fname),
-            shlex.quote(aln_fname),
-            shlex.quote(log_fname),
-        )
+        print("Not yet implemented %s" % method)
     return cmd
 
 
