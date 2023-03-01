@@ -337,19 +337,28 @@ def generate_alignment_mafft_cmd(
 
 
 def generate_alignment_prank_cmd(
-    method: str, seqs_to_align_fname: str, aln_fname: str, log_fname: str
+    method: str, input: str, output: str, log: str, **kwargs
 ):
+    def joint_kwargs_(**kwargs) -> str:
+        return " ".join([k + "=" + v for k, v in kwargs.items()])
+
     cmd: Optional[str] = None
 
     if method == "codon":
-        cmd = "prank -codon -d=%s -o=%s 1>%s" % (
-            shlex.quote(seqs_to_align_fname),
-            shlex.quote(aln_fname),
-            shlex.quote(log_fname),
+        cmd = " ".join(
+            [
+                "-codon",
+                "-d=" + input,
+                "-o=" + output,
+                "2>" + log,
+                joint_kwargs_(**kwargs),
+            ]
         )
 
     else:
-        print("Not yet implemented %s" % method)
+        raise NotImplementedError(
+            "ERROR: coevol method %s not implemented yet" % method
+        )
     return cmd
 
 
