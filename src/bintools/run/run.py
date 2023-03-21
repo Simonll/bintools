@@ -363,6 +363,36 @@ def generate_alignment_prank_cmd(
     return cmd
 
 
+def generate_alignment_macse_cmd(
+    method: str,
+    mapping: str,
+    logger: Optional[str] = None,
+    image: str = "ubuntu16.04/macse:latest",
+    **kwargs
+):
+    def joint_kwargs_(**kwargs) -> str:
+        return " ".join([k + "=" + v for k, v in kwargs.items()])
+
+    cmd: Optional[str] = None
+
+    if method == "masce":
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                joint_kwargs(**kwargs),
+                logger if logger is not None else "",
+            ]
+        )
+
+    else:
+        raise NotImplementedError(
+            "ERROR: coevol method %s not implemented yet" % method
+        )
+    return cmd
+
+
 def generate_simu_cmd(
     method: str,
     mapping: str,
