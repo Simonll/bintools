@@ -370,8 +370,6 @@ def generate_alignment_macse_cmd(
     image: str = "ubuntu16.04/macse:latest",
     **kwargs
 ):
-    def joint_kwargs_(**kwargs) -> str:
-        return " ".join([k + "=" + v for k, v in kwargs.items()])
 
     cmd: Optional[str] = None
 
