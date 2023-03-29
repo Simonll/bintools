@@ -194,6 +194,44 @@ def generate_pb_mpi_cmd(
     return cmd
 
 
+def generate_raxml_mpi_cmd(
+    method: str,
+    mapping: str,
+    logger: Optional[str] = None,
+    image: str = "ubuntu20.04/raxmlmpi",
+    **kwargs
+) -> Optional[str]:
+    cmd: Optional[str] = None
+    if method == "raxml_mpi":
+        np: Optional[int] = os.cpu_count()
+        if np is None:
+            np = 1
+
+        if "-np" in kwargs:
+            np = kwargs["-np"]
+            del kwargs["-np"]
+
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "mpirun --allow-run-as-root  -np",
+                str(np),
+                "raxmlHPC-MPI",
+                joint_kwargs(**kwargs),
+                logger if logger is not None else "",
+            ]
+        )
+
+    else:
+        raise NotImplementedError(
+            "ERROR: raxml_mpi method %s not implemented yet" % method
+        )
+
+    return cmd
+
+
 def generate_coevol_cmd(
     method: str, mapping: str, image: str = "ubuntu20.04/coevol", **kwargs
 ) -> Optional[str]:
