@@ -316,6 +316,9 @@ def generate_blast_cmd(
     elif method == "tblastx":
         cmd = " ".join([DOCKER_RUN, mapping, image, "blastx", joint_kwargs(**kwargs)])
 
+    elif method == "blastp":
+        cmd = " ".join([DOCKER_RUN, mapping, image, "blastp", joint_kwargs(**kwargs)])
+
     else:
         raise NotImplementedError("ERROR: blast method %s not implemented" % method)
 
