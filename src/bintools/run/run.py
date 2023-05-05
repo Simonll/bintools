@@ -54,6 +54,38 @@ def generate_iqtree_cmd(
     return cmd
 
 
+def generate_bayescode_cmd(
+    method: str,
+    mapping: str,
+    logger: Optional[str] = None,
+    image: str = "ubuntu20.04/bayescode",
+    **kwargs
+) -> Optional[str]:
+    cmd: Optional[str] = None
+    if method == "nodetraits":
+        chainname: str = ""
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "nodetraits",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger if logger is not None else "",
+            ]
+        )
+    else:
+        raise NotImplementedError(
+            "ERROR: readpb_mpi method %s not implemented yet" % method
+        )
+
+    return cmd
+
+
 def generate_phylobayes_cmd(
     method: str,
     mapping: str,
