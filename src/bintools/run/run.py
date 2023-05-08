@@ -39,7 +39,6 @@ def generate_iqtree_cmd(
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "iqtree2":
-
         cmd = " ".join(
             [
                 DOCKER_RUN,
@@ -62,8 +61,8 @@ def generate_bayescode_cmd(
     **kwargs
 ) -> Optional[str]:
     cmd: Optional[str] = None
+    chainname: str = ""
     if method == "nodetraits":
-        chainname: str = ""
         if "-chainname" in kwargs:
             chainname = kwargs["-chainname"]
             del kwargs["-chainname"]
@@ -73,6 +72,21 @@ def generate_bayescode_cmd(
                 mapping,
                 image,
                 "nodetraits",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger if logger is not None else "",
+            ]
+        )
+    if method == "readnodetraits":
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "readnodetraits",
                 joint_kwargs(**kwargs),
                 chainname,
                 logger if logger is not None else "",
@@ -443,7 +457,6 @@ def generate_alignment_macse_cmd(
     image: str = "ubuntu16.04/macse:latest",
     **kwargs
 ):
-
     cmd: Optional[str] = None
 
     if method == "masce":
@@ -526,7 +539,6 @@ def generate_codeml_cmd(
     image: str = "ubuntu20.04/codeml",
     **kwargs
 ) -> Optional[str]:
-
     cmd: Optional[str] = None
     if method in ["M0", "M7", "M8", "M8a"]:
         cmd = " ".join(
