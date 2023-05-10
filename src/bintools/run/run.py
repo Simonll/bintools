@@ -77,7 +77,7 @@ def generate_bayescode_cmd(
                 logger if logger is not None else "",
             ]
         )
-    if method == "readnodetraits":
+    elif method == "readnodetraits":
         if "-chainname" in kwargs:
             chainname = kwargs["-chainname"]
             del kwargs["-chainname"]
@@ -94,7 +94,7 @@ def generate_bayescode_cmd(
         )
     else:
         raise NotImplementedError(
-            "ERROR: readpb_mpi method %s not implemented yet" % method
+            "ERROR: bayescode method %s not implemented yet" % method
         )
 
     return cmd
@@ -234,7 +234,7 @@ def generate_pb_mpi_cmd(
 
     else:
         raise NotImplementedError(
-            "ERROR: readpb_mpi method %s not implemented yet" % method
+            "ERROR: pb_mpi method %s not implemented yet" % method
         )
 
     return cmd
