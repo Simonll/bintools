@@ -92,6 +92,36 @@ def generate_bayescode_cmd(
                 logger if logger is not None else "",
             ]
         )
+    elif method == "mutselaacomega":
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "mutselaacomega",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger if logger is not None else "",
+            ]
+        )
+    elif method == "mutselcomega":
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "mutselcomega",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger if logger is not None else "",
+            ]
+        )
     else:
         raise NotImplementedError(
             "ERROR: bayescode method %s not implemented yet" % method
