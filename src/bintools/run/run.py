@@ -107,6 +107,21 @@ def generate_bayescode_cmd(
                 logger if logger is not None else "",
             ]
         )
+    elif method == "readmutselaacomega":
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "readmutselaacomega",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger if logger is not None else "",
+            ]
+        )
     elif method == "mutselcomega":
         if "-chainname" in kwargs:
             chainname = kwargs["-chainname"]
@@ -117,6 +132,21 @@ def generate_bayescode_cmd(
                 mapping,
                 image,
                 "mutselcomega",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger if logger is not None else "",
+            ]
+        )
+    elif method == "readmutselcomega":
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "readmutselcomega",
                 joint_kwargs(**kwargs),
                 chainname,
                 logger if logger is not None else "",
