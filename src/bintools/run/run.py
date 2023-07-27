@@ -389,14 +389,16 @@ def generate_coevol_cmd(
 
 
 def generate_datasets_cmd(
-    method: str, mapping: str, image: str = "/opt/datasets", **kwargs
+    method: str, mapping: str, image: str = "ubuntu20.04/ncbi-datasets", **kwargs
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "download genome":
         cmd = " ".join(
             [
+                DOCKER_RUN,
+                mapping,
                 image,
-                "download genome",
+                "datasets download genome",
                 joint_kwargs(**kwargs),
                 "--exclude-protein",
                 "--exclude-rna",
@@ -406,8 +408,10 @@ def generate_datasets_cmd(
     elif method == "summary":
         cmd = " ".join(
             [
+                DOCKER_RUN,
+                mapping,
                 image,
-                "summary genome",
+                "datasets summary genome",
                 joint_kwargs(**kwargs),
             ]
         )
