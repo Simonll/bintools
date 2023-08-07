@@ -388,6 +388,27 @@ def generate_coevol_cmd(
     return cmd
 
 
+def generate_busco_cmd(
+    method: str, mapping: str, image: str = "ezlabgva/busco:v5.4.7_cv1", **kwargs
+) -> Optional[str]:
+    cmd: Optional[str] = None
+    if method == "geno":
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "busco ",
+                joint_kwargs(**kwargs),
+            ]
+        )
+
+    else:
+        raise NotImplementedError("ERROR: busco method %s not implemented yet" % method)
+
+    return cmd
+
+
 def generate_datasets_cmd(
     method: str, mapping: str, image: str = "ubuntu20.04/ncbi-datasets", **kwargs
 ) -> Optional[str]:
