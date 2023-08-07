@@ -389,7 +389,11 @@ def generate_coevol_cmd(
 
 
 def generate_busco_cmd(
-    method: str, mapping: str, image: str = "ezlabgva/busco:v5.4.7_cv1", **kwargs
+    method: str,
+    mapping: str,
+    logger: Optional[str] = None,
+    image: str = "ezlabgva/busco:v5.4.7_cv1",
+    **kwargs
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "geno":
@@ -400,6 +404,7 @@ def generate_busco_cmd(
                 image,
                 "busco ",
                 joint_kwargs(**kwargs),
+                logger if logger is not None else "",
             ]
         )
 
