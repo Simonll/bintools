@@ -415,7 +415,11 @@ def generate_busco_cmd(
 
 
 def generate_datasets_cmd(
-    method: str, mapping: str, image: str = "ubuntu20.04/ncbi-datasets", **kwargs
+    method: str,
+    mapping: str,
+    logger: Optional[str] = None,
+    image: str = "ubuntu20.04/ncbi-datasets",
+    **kwargs
 ) -> Optional[str]:
     cmd: Optional[str] = None
     if method == "download genome":
@@ -426,8 +430,7 @@ def generate_datasets_cmd(
                 image,
                 "datasets download genome",
                 joint_kwargs(**kwargs),
-                "--exclude-protein",
-                "--exclude-rna",
+                logger if logger is not None else "",
             ]
         )
 
