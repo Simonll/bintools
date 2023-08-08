@@ -582,7 +582,7 @@ def generate_alignment_macse_cmd(
 ):
     cmd: Optional[str] = None
 
-    if method == "masce":
+    if method == "macse":
         cmd = " ".join(
             [
                 DOCKER_RUN,
