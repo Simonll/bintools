@@ -442,6 +442,7 @@ def generate_datasets_cmd(
                 image,
                 "datasets summary genome",
                 joint_kwargs(**kwargs),
+                logger if logger is not None else "",
             ]
         )
 
@@ -496,19 +497,27 @@ def generate_blast_cmd(
 
 def generate_fasttree_cmd(
     method,
-    aln_fname,
-    tree_fname,
-    log_fname,
-    image: str = "/opt/anaconda3/envs/vert/bin/fasttree",
+    mapping,
+    logger: Optional[str] = None,
+    image: str = "ubuntu20.04/fasttree:latest",
+    **kwargs
 ):
     cmd: Optional[str] = None
 
     if method == "fasttree":
-        cmd = "fasttree -nosupport -lg %s 1> %s 2> %s" % (
-            shlex.quote(aln_fname),
-            shlex.quote(tree_fname),
-            shlex.quote(log_fname),
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "FastTreeMP",
+                joint_kwargs(**kwargs),
+                logger if logger is not None else "",
+            ]
         )
+
+    else:
+        raise NotImplementedError("ERROR: fasttree method %s not implemented" % method)
 
     return cmd
 
