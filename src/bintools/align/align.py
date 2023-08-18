@@ -48,8 +48,19 @@ class ali:
 
     def get_biopython_align(self) -> MultipleSeqAlignment:
         records: List[SeqRecord] = []
+
+        seq_length: int = -1
         for k, v in self.dict_of_seq.items():
-            records += [SeqRecord(MutableSeq("".join([j for i, j in v.items()])), id=k)]
+            l = len("".join([j for i, j in v.items()]))
+            if l > seq_length:
+                seq_length = l
+        if seq_length == -1:
+            print("something wrong with %s" % "sequence length")
+            raise RuntimeError
+        for k, v in self.dict_of_seq.items():
+            seq: str = "".join([j for i, j in v.items()]).ljust(seq_length, "-")
+            records += [SeqRecord(MutableSeq(seq), id=k)]
+
         return MultipleSeqAlignment(records=records)
 
     def translate(self, sequence: str):
