@@ -407,7 +407,28 @@ def generate_busco_cmd(
                 logger if logger is not None else "",
             ]
         )
-
+    elif method == "prot":
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "busco ",
+                joint_kwargs(**kwargs),
+                logger if logger is not None else "",
+            ]
+        )
+    elif method == "tran":
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "busco ",
+                joint_kwargs(**kwargs),
+                logger if logger is not None else "",
+            ]
+        )
     else:
         raise NotImplementedError("ERROR: busco method %s not implemented yet" % method)
 
