@@ -197,12 +197,12 @@ def read_ali(fh: IO[Any]):
 
 def read_fasta(fh: IO[Any]) -> ali:
     lines: List[str] = fh.readlines()
-    lines: Iterator[str] = iter(lines)
+    lines_iter: Iterator[str] = iter(lines)
     dict_of_seq: Dict[str, Dict[int, str]] = {}
-    for l in lines:
+    for l in lines_iter:
         if l.startswith(">"):
             defline = l.strip()[1:]
-            seq = next(lines)
+            seq = next(lines_iter)
             dict_of_seq[defline.strip()] = {
                 i: j for i, j in enumerate(list(seq.strip()))
             }
