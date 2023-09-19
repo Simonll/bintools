@@ -46,19 +46,27 @@ class ali:
     def __iter__(self) -> Iterator[Any]:
         yield self.dict_of_seq.items()
 
-    def get_biopython_align(self) -> MultipleSeqAlignment:
+    def get_biopython_align(self, padding: bool = False) -> MultipleSeqAlignment:
         records: List[SeqRecord] = []
 
         seq_length: int = -1
+        n_length_seq: int = -1
         for k, v in self.dict_of_seq.items():
             l = len("".join([j for i, j in v.items()]))
             if l > seq_length:
                 seq_length = l
+                n_length_seq += 1
         if seq_length == -1:
             print("something wrong with %s" % "sequence length")
             raise RuntimeError
+
+        print("seqences length changed %d times" % n_length_seq)
+
         for k, v in self.dict_of_seq.items():
-            seq: str = "".join([j for i, j in v.items()]).ljust(seq_length, "-")
+            seq: str = "".join([j for i, j in v.items()])
+            if padding:
+                if len(seq) != seq_length:
+                    seq.ljust(seq_length, "-")
             records += [SeqRecord(MutableSeq(seq), id=k)]
 
         return MultipleSeqAlignment(records=records)
