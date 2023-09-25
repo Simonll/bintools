@@ -66,7 +66,7 @@ class ali:
             seq: str = "".join([j for i, j in v.items()])
             if padding:
                 if len(seq) != seq_length:
-                    seq.ljust(seq_length, "-")
+                    seq = seq.ljust(seq_length, "-")
             records += [SeqRecord(MutableSeq(seq), id=k)]
 
         return MultipleSeqAlignment(records=records)
