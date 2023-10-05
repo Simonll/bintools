@@ -13,24 +13,38 @@ from bintools.cabc.utils import transform
 
 def generate_cabc_conf(method: str, **kwargs) -> List[str]:
     conf: Optional[List[str]] = None
-    if method in ["M0", "M7", "M8", "CodonMutSelFinite", "CodonMutSelSBDP"]:
+    if method in [
+        "M0",
+        "M7",
+        "M8",
+        "CodonMutSelFinite",
+        "CodonMutSelSBDP",
+        "AACodonMutSelMultipleOmega",
+    ]:
         conf = []
-        conf += ["#SUMMARIES" + "\t" + kwargs["ss"]]
-        conf += ["#PARAM" + "\t" + kwargs["param"]]
-        conf += ["#MAP" + "\t" + kwargs["map"]]
-        conf += ["#SAMPLING" + "\t" + kwargs["sampling"]]
-        conf += ["#RUN" + "\t" + kwargs["nrun"]]
-        conf += ["#NTHREADS" + "\t" + kwargs["nthreads"]]
-        conf += ["#TRANS no"]
-        conf += ["#OUTPUT" + "\t" + kwargs["output"]]
-        conf += [
-            "\t".join(
-                ["#LOCALPARAM"]
-                + [kwargs["localparam"]]
-                + ["-d" + "\t" + kwargs["align"]]
-                + ["-chain" + "\t" + kwargs["chainname"]]
-            )
-        ]
+        if "ss" in kwargs:
+            conf += ["#SUMMARIES" + "\t" + kwargs["ss"]]
+        if "param" in kwargs:
+            conf += ["#PARAM" + "\t" + kwargs["param"]]
+        if "map" in kwargs:
+            conf += ["#MAP" + "\t" + kwargs["map"]]
+        if "sampling" in kwargs:
+            conf += ["#SAMPLING" + "\t" + kwargs["sampling"]]
+        if "nrun" in kwargs:
+            conf += ["#RUN" + "\t" + kwargs["nrun"]]
+        if "nthreads" in kwargs:
+            conf += ["#NTHREADS" + "\t" + kwargs["nthreads"]]
+        if "output" in kwargs:
+            conf += ["#OUTPUT" + "\t" + kwargs["output"]]
+        if "align" in kwargs and "chainname" in kwargs:
+            conf += [
+                "\t".join(
+                    ["#LOCALPARAM"]
+                    + [kwargs["localparam"]]
+                    + ["-d" + "\t" + kwargs["align"]]
+                    + ["-chain" + "\t" + kwargs["chainname"]]
+                )
+            ]
     else:
         raise NotImplementedError(
             "ERROR: simulation method %s not implemented" % method
