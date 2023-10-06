@@ -677,13 +677,13 @@ def generate_simu_cmd(
                 logger if logger is not None else "",
             ]
         )
-    elif method == "BayescodeSimuMUTSELAAC":
+    elif method == "BayescodeSimuMutSelAAC":
         cmd = " ".join(
             [
                 DOCKER_RUN,
                 mapping,
                 image,
-                "BayescodeSimuMUTSELAAC",
+                "BayescodeSimuMutSelAAC",
                 joint_kwargs(**kwargs),
                 config_filename,
                 logger if logger is not None else "",
