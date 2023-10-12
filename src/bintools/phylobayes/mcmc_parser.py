@@ -425,3 +425,169 @@ class posterior_M0_GTR(posterior):
         except Exception as e:
             print("something wrong %s, %s" % (input_file, str(e)))
             return None
+
+
+class posterior_MUTSELAAC(posterior):
+    """
+    read posterior values generated using Bayescode with MUTSELAAC
+    """
+
+    def __init__(
+        self,
+        list_of_sampleID: List[int],
+        list_of_trees: List[str],
+        list_of_phi: List[List[float]],
+        list_of_rho: List[List[float]],
+        list_of_codon_usage: List[List[float]],
+        list_of_site_omega: List[List[float]],
+        list_of_site_omega_alloc: List[List[int]],
+        number_of_aa_profiles: int,
+        list_of_aa_profiles: List[List[List[float]]],
+        list_of_alloc: List[List[int]],
+        burnin: int = 0,
+    ):
+        super().__init__(
+            list_of_sampleID=list_of_sampleID,
+            list_of_trees=list_of_trees,
+            list_of_phi=list_of_phi,
+            list_of_rho=list_of_rho,
+            burnin=burnin,
+        )
+        self.list_of_codon_usage: List[List[float]] = list_of_codon_usage
+        self.list_of_site_omega: List[List[float]] = list_of_site_omega
+        self.list_of_site_omega_alloc: List[List[int]] = list_of_site_omega_alloc
+        self.number_of_aa_profiles: int = number_of_aa_profiles
+        self.list_of_aa_profiles: List[List[List[float]]] = list_of_aa_profiles
+        self.list_of_alloc: List[List[int]] = list_of_alloc
+
+    def parse_mcmc(
+        self, mcmc_path: Path, burnin: int = 0
+    ) -> Optional["posterior_MUTSELAAC"]:
+        """
+        parses mcmc
+        """
+        list_of_sampleID: List[int] = []
+        list_of_trees: List[str] = []
+        list_of_phi: List[List[float]] = []
+        list_of_rho: List[List[float]] = []
+        list_of_codon_usage: List[List[float]]
+        list_of_site_omega: List[List[float]] = []
+        list_of_site_omega_alloc: List[List[int]] = []
+        number_of_aa_profiles: int = 0
+        list_of_aa_profiles: List[List[List[float]]] = []
+        list_of_alloc: List[List[int]] = []
+        try:
+            with open(mcmc_path, "r") as hl:
+                lines: List[str] = hl.readlines()
+                number_of_aa_profiles = int(lines[0].split()[9])
+                lines = lines[1::]  # skip first line
+                for sampleID, chunck in enumerate(
+                    chunck_chain(lines=lines, chunck_size=number_of_aa_profiles + 7)
+                ):
+                    list_of_sampleID += [sampleID]
+                    try:
+                        list_of_trees += [chunck[0].strip()]
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s" % ("parsing the tree", str(e))
+                        )
+
+                    try:
+                        list_of_phi += [
+                            np.fromstring(chunck[1], dtype=float, sep="\t").tolist()
+                        ]
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s" % ("parsing the phi", str(e))
+                        )
+
+                    try:
+                        list_of_rho += [
+                            np.fromstring(chunck[2], dtype=float, sep="\t").tolist()
+                        ]
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s" % ("parsing the rho", str(e))
+                        )
+
+                    try:
+                        list_of_codon_usage += [
+                            np.fromstring(chunck[3], dtype=float, sep="\t").tolist()
+                        ]
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s" % ("parsing the rho", str(e))
+                        )
+
+                    try:
+                        cur_list_of_aa_profiles: List[List[float]] = []
+                        for i in range(4, (number_of_aa_profiles + 4)):
+                            cur_list_of_aa_profiles += [
+                                np.fromstring(chunck[i], dtype=float, sep="\t").tolist()
+                            ]
+                        list_of_aa_profiles += [cur_list_of_aa_profiles]
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s"
+                            % ("parsing the aa profiles", str(e))
+                        )
+
+                    try:
+                        list_of_alloc += [
+                            np.fromstring(
+                                chunck[self.number_of_aa_profiles + 4],
+                                dtype=int,
+                                sep="\t",
+                            ).tolist()
+                        ]
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s"
+                            % ("parsing the aa profile allocation", str(e))
+                        )
+
+                    try:
+                        list_of_site_omega += [
+                            np.fromstring(
+                                chunck[self.number_of_aa_profiles + 5],
+                                dtype=float,
+                                sep="\t",
+                            ).tolist()
+                        ]
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s" % ("parsing the rho", str(e))
+                        )
+
+                    try:
+                        list_of_site_omega_alloc += [
+                            np.fromstring(
+                                chunck[self.number_of_aa_profiles + 6],
+                                dtype=int,
+                                sep="\t",
+                            ).tolist()
+                        ]
+                    except Exception as e:
+                        print(
+                            "something wrong with %s %s" % ("parsing the rho", str(e))
+                        )
+
+            return posterior_MUTSELAAC(
+                list_of_sampleID=list_of_sampleID,
+                list_of_trees=list_of_trees,
+                list_of_phi=list_of_phi,
+                list_of_rho=list_of_rho,
+                list_of_codon_usage=list_of_codon_usage,
+                number_of_aa_profiles=number_of_aa_profiles,
+                list_of_aa_profiles=list_of_aa_profiles,
+                list_of_alloc=list_of_alloc,
+                list_of_site_omega=list_of_site_omega,
+                list_of_site_omega_alloc=list_of_site_omega_alloc,
+                burnin=burnin,
+            )
+        except Exception as e:
+            print("something wrong %s when parsing %s" % (str(e), mcmc_path.__str__()))
+            return None
+
+    def sample(self):
+        print("method to be implemented %s " % self.__str__())
