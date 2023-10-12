@@ -9,6 +9,7 @@ from typing import Optional
 from typing import Union
 
 import numpy as np
+import pandas as pd
 
 from bintools.utils.utils import check_path
 
@@ -591,3 +592,13 @@ class posterior_MUTSELAAC(posterior):
 
     def sample(self):
         print("method to be implemented %s " % self.__str__())
+
+    def get_rho_as_dataframe(self) -> pd.DataFrame:
+
+        return pd.DataFrame(
+            data=self.list_of_rho, columns=["AC", "AG", "AT", "CG", "CT", "GT"]
+        )
+
+    def get_phi_as_dataframe(self) -> pd.DataFrame:
+
+        return pd.DataFrame(data=self.list_of_phi, columns=["A", "C", "G", "T"])
