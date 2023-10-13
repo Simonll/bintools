@@ -627,5 +627,5 @@ class posterior_MUTSELAAC(posterior):
             data=[
                 j[k[i]] for j, k in zip(self.list_of_aa_profiles, self.list_of_alloc)
             ],
-            columns=amino_acids_upper,
+            columns=amino_acids_upper[:-1],
         )
