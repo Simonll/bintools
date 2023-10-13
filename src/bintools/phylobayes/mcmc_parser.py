@@ -609,10 +609,15 @@ class posterior_MUTSELAAC(posterior):
     def get_codon_usage_as_dataframe(self) -> pd.DataFrame:
         return pd.DataFrame(data=self.list_of_codon_usage, columns=codons)
 
-    def get_site_omega_as_dataframe(self) -> pd.DataFrame:
+    def get_site_omega_as_dataframe(self, i: int) -> pd.DataFrame:
+        assert i < len(self.list_of_alloc[0])
+
         return pd.DataFrame(
-            data=self.list_of_site_omega,
-            columns=[i for i in range(len(self.list_of_site_omega[0]))],
+            data=[
+                j[k[i]]
+                for j, k in zip(self.list_of_site_omega, self.list_of_site_omega_alloc)
+            ],
+            columns=[i],
         )
 
     def get_site_aa_profile_as_dataframe(self, i: int) -> pd.DataFrame:
