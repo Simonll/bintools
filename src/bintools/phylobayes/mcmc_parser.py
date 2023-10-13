@@ -11,6 +11,8 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
+from bintools.phylobayes.alphabet import amino_acids_upper
+from bintools.phylobayes.alphabet import codons
 from bintools.utils.utils import check_path
 
 
@@ -392,7 +394,6 @@ class posterior_M0_GTR(posterior):
 
         try:
             with open(str(input_file), "r") as file_handler:
-
                 lines: Iterator[str] = iter(file_handler.readlines())
                 sampleID: int = 0
                 for line in takewhile(lambda x: x is not None, lines):
@@ -598,11 +599,28 @@ class posterior_MUTSELAAC(posterior):
         print("method to be implemented %s " % self.__str__())
 
     def get_rho_as_dataframe(self) -> pd.DataFrame:
-
         return pd.DataFrame(
             data=self.list_of_rho, columns=["AC", "AG", "AT", "CG", "CT", "GT"]
         )
 
     def get_phi_as_dataframe(self) -> pd.DataFrame:
-
         return pd.DataFrame(data=self.list_of_phi, columns=["A", "C", "G", "T"])
+
+    def get_codon_usage_as_dataframe(self) -> pd.DataFrame:
+        return pd.DataFrame(data=self.list_of_codon_usage, columns=codons)
+
+    def get_site_omega_as_dataframe(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            data=self.list_of_site_omega,
+            columns=[i for i in range(len(self.list_of_site_omega[0]))],
+        )
+
+    def get_site_aa_profile_as_dataframe(self, i: int) -> pd.DataFrame:
+        assert i < len(self.list_of_alloc[0])
+
+        return pd.DataFrame(
+            data=[
+                j[k[i]] for j, k in zip(self.list_of_aa_profiles, self.list_of_alloc)
+            ],
+            columns=amino_acids_upper,
+        )
