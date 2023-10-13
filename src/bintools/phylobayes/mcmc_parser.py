@@ -461,8 +461,9 @@ class posterior_MUTSELAAC(posterior):
         self.list_of_aa_profiles: List[List[List[float]]] = list_of_aa_profiles
         self.list_of_alloc: List[List[int]] = list_of_alloc
 
+    @classmethod
     def parse_mcmc(
-        self, mcmc_path: Path, burnin: int = 0
+        cls, mcmc_path: Path, burnin: int = 0
     ) -> Optional["posterior_MUTSELAAC"]:
         """
         parses mcmc
@@ -471,7 +472,7 @@ class posterior_MUTSELAAC(posterior):
         list_of_trees: List[str] = []
         list_of_phi: List[List[float]] = []
         list_of_rho: List[List[float]] = []
-        list_of_codon_usage: List[List[float]]
+        list_of_codon_usage: List[List[float]] = []
         list_of_site_omega: List[List[float]] = []
         list_of_site_omega_alloc: List[List[int]] = []
         number_of_aa_profiles: int = 0
@@ -517,7 +518,8 @@ class posterior_MUTSELAAC(posterior):
                         ]
                     except Exception as e:
                         print(
-                            "something wrong with %s %s" % ("parsing the rho", str(e))
+                            "something wrong with %s %s"
+                            % ("parsing the codon fitness", str(e))
                         )
 
                     try:
@@ -536,7 +538,7 @@ class posterior_MUTSELAAC(posterior):
                     try:
                         list_of_alloc += [
                             np.fromstring(
-                                chunck[self.number_of_aa_profiles + 4],
+                                chunck[number_of_aa_profiles + 4],
                                 dtype=int,
                                 sep="\t",
                             ).tolist()
@@ -550,27 +552,29 @@ class posterior_MUTSELAAC(posterior):
                     try:
                         list_of_site_omega += [
                             np.fromstring(
-                                chunck[self.number_of_aa_profiles + 5],
+                                chunck[number_of_aa_profiles + 5],
                                 dtype=float,
                                 sep="\t",
                             ).tolist()
                         ]
                     except Exception as e:
                         print(
-                            "something wrong with %s %s" % ("parsing the rho", str(e))
+                            "something wrong with %s %s"
+                            % ("parsing the site omega", str(e))
                         )
 
                     try:
                         list_of_site_omega_alloc += [
                             np.fromstring(
-                                chunck[self.number_of_aa_profiles + 6],
+                                chunck[number_of_aa_profiles + 6],
                                 dtype=int,
                                 sep="\t",
                             ).tolist()
                         ]
                     except Exception as e:
                         print(
-                            "something wrong with %s %s" % ("parsing the rho", str(e))
+                            "something wrong with %s %s"
+                            % ("parsing the site omega allocation", str(e))
                         )
 
             return posterior_MUTSELAAC(
