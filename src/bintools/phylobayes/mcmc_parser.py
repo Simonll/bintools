@@ -607,7 +607,10 @@ class posterior_MUTSELAAC(posterior):
         return pd.DataFrame(data=self.list_of_phi, columns=["A", "C", "G", "T"])
 
     def get_codon_usage_as_dataframe(self) -> pd.DataFrame:
-        return pd.DataFrame(data=self.list_of_codon_usage, columns=codons)
+        return pd.DataFrame(
+            data=self.list_of_codon_usage,
+            columns=[i for i in codons if i not in ["TGA", "TAG", "TAA"]],
+        )
 
     def get_site_omega_as_dataframe(self, i: int) -> pd.DataFrame:
         assert i < len(self.list_of_alloc[0])
