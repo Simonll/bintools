@@ -90,8 +90,9 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
         self.list_of_aa_profiles: List[List[List[float]]] = list_of_aa_profiles
         self.list_of_alloc: List[List[int]] = list_of_alloc
 
+    @classmethod
     def parse_mcmc(
-        self, mcmc_path: Path, burnin: int = 0
+        cls, mcmc_path: Path, burnin: int = 0
     ) -> Optional["posterior_MGTRtsCpG_SNCatAA"]:
         """
         parses mcmc
@@ -160,7 +161,7 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
                     try:
                         list_of_alloc += [
                             np.fromstring(
-                                chunck[self.number_of_aa_profiles + 14],
+                                chunck[number_of_aa_profiles + 14],
                                 dtype=int,
                                 sep="\t",
                             ).tolist()
@@ -171,7 +172,7 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
                             % ("parsing the aa profile allocation", str(e))
                         )
 
-            return posterior_MGTRtsCpG_SNCatAA(
+            return cls(
                 list_of_sampleID=list_of_sampleID,
                 list_of_trees=list_of_trees,
                 list_of_phi=list_of_phi,
