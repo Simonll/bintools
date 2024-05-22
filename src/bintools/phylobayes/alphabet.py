@@ -596,14 +596,18 @@ TOOLARGENEGATIVE: float = -500
 
 
 dict_of_codon_standard_code_str_int: Dict[str, int] = {
-    codon_i: gen_code_standard[i] for i, codon_i in enumerate(codons)
+    codon_i: i for i, codon_i in enumerate(codons)
 }
 
 dict_of_codon_standard_code_int_str: Dict[int, str] = {
-    gen_code_standard[i]: codon_i
-    for i, codon_i in enumerate(codons)
-    if gen_code_standard[i] != -1
+    i: codon_i for i, codon_i in enumerate(codons)
 }
+
+
+def is_stop_codon(codon: str) -> bool:
+    if codon in ["TAA", "TAG", "TGA"]:
+        return True
+    return False
 
 
 def get_diff_codon_position(codon_1: str, codon_2: str):
