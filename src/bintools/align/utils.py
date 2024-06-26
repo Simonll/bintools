@@ -1,3 +1,4 @@
+import re
 from typing import Dict
 
 
@@ -20,6 +21,46 @@ def compute_XpY(seq: str, x: str, y: str) -> Dict[str, float]:
                 dict_of_stats[XpY] = 1
 
     return {k: v / (len(seq) - 1) for k, v in dict_of_stats.items()}
+
+
+def compute_XpY_oe(seq: str, x: str, y: str) -> Dict[str, float]:
+    dict_of_stats: Dict[str, float] = {}
+    assert len(x) == 1 and len(y) == 1
+
+    dict_of_stats["acgt"] += len(
+        re.findall(
+            "[ACGTacgt]", str(sub_sample(seq=seq, start=0, stop=len(seq), step=1))
+        )
+    )
+
+    XpY: str = x + "p" + y + "o/e"
+    for i, j in zip(
+        sub_sample(seq=seq, start=0, stop=len(seq), step=1),
+        sub_sample(seq=seq, start=1, stop=len(seq), step=1),
+    ):
+        if (i == x.upper() or i == x.lower()) and (j == y.upper() or j == y.lower()):
+            if XpY in dict_of_stats:
+                dict_of_stats[XpY] += 1
+            else:
+                dict_of_stats[XpY] = 1
+
+    for i in sub_sample(seq=seq, start=0, stop=len(seq), step=1):
+        if i == x.upper() or i == x.lower():
+            if x in dict_of_stats:
+                dict_of_stats[x] += 1
+            else:
+                dict_of_stats[x] = 1
+
+        if i == y.upper() or i == y.lower():
+            if y in dict_of_stats:
+                dict_of_stats[y] += 1
+            else:
+                dict_of_stats[y] = 1
+
+    return {
+        XpY: (dict_of_stats[XpY] / (dict_of_stats["acgt"] - 1))
+        / (dict_of_stats[x] * dict_of_stats[y] / (dict_of_stats["acgt"] ** 2))
+    }
 
 
 def compute_CpG(seq: str) -> Dict[str, float]:

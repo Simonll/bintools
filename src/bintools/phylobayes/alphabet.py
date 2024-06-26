@@ -595,15 +595,6 @@ TOOLARGE: float = 500
 TOOLARGENEGATIVE: float = -500
 
 
-dict_of_codon_standard_code_str_int: Dict[str, int] = {
-    codon_i: i for i, codon_i in enumerate(codons)
-}
-
-dict_of_codon_standard_code_int_str: Dict[int, str] = {
-    i: codon_i for i, codon_i in enumerate(codons)
-}
-
-
 def is_stop_codon(codon: str) -> bool:
     if codon in ["TAA", "TAG", "TGA"]:
         return True
