@@ -122,6 +122,38 @@ def generate_bayescode_cmd(
                 logger if logger is not None else "",
             ]
         )
+
+    elif method == "mutselaaomega":
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "mutselaaomega",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger if logger is not None else "",
+            ]
+        )
+    elif method == "readmutselomega":
+        if "-chainname" in kwargs:
+            chainname = kwargs["-chainname"]
+            del kwargs["-chainname"]
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "readmutselomega",
+                joint_kwargs(**kwargs),
+                chainname,
+                logger if logger is not None else "",
+            ]
+        )
+
     elif method == "mutselaacomega":
         if "-chainname" in kwargs:
             chainname = kwargs["-chainname"]
@@ -585,19 +617,25 @@ def generate_alignment_mafft_cmd(
     cmd: Optional[str] = None
     if method == "mafft":
         if existing_aln_fname:
-            cmd = "mafft --add %s --keeplength --reorder --anysymbol --nomemsave --adjustdirection --thread %d %s 1> %s 2> %s" % (
-                shlex.quote(seqs_to_align_fname),
-                nthreads,
-                shlex.quote(existing_aln_fname),
-                shlex.quote(aln_fname),
-                shlex.quote(log_fname),
+            cmd = (
+                "mafft --add %s --keeplength --reorder --anysymbol --nomemsave --adjustdirection --thread %d %s 1> %s 2> %s"
+                % (
+                    shlex.quote(seqs_to_align_fname),
+                    nthreads,
+                    shlex.quote(existing_aln_fname),
+                    shlex.quote(aln_fname),
+                    shlex.quote(log_fname),
+                )
             )
         else:
-            cmd = "mafft --reorder --anysymbol --nomemsave --adjustdirection --thread %d %s 1> %s 2> %s" % (
-                nthreads,
-                shlex.quote(seqs_to_align_fname),
-                shlex.quote(aln_fname),
-                shlex.quote(log_fname),
+            cmd = (
+                "mafft --reorder --anysymbol --nomemsave --adjustdirection --thread %d %s 1> %s 2> %s"
+                % (
+                    nthreads,
+                    shlex.quote(seqs_to_align_fname),
+                    shlex.quote(aln_fname),
+                    shlex.quote(log_fname),
+                )
             )
     #        print("\nusing mafft to align via:\n\t" + cmd +
     #            " \n\n\tKatoh et al, Nucleic Acid Research, vol 30, issue 14"
