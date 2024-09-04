@@ -92,7 +92,7 @@ def generate_bayescode_cmd(
                 logger if logger is not None else "",
             ]
         )
-    elif method == "mutselaaomega":
+    elif method == "mutselaaomega" or method == "mutselomega":
         if "-chainname" in kwargs:
             chainname = kwargs["-chainname"]
             del kwargs["-chainname"]
@@ -101,44 +101,13 @@ def generate_bayescode_cmd(
                 DOCKER_RUN,
                 mapping,
                 image,
-                "mutselaaomega",
+                "mutselomega",
                 joint_kwargs(**kwargs),
                 chainname,
                 logger if logger is not None else "",
             ]
         )
-    elif method == "readmutselaaomega":
-        if "-chainname" in kwargs:
-            chainname = kwargs["-chainname"]
-            del kwargs["-chainname"]
-        cmd = " ".join(
-            [
-                DOCKER_RUN,
-                mapping,
-                image,
-                "readmutselaaomega",
-                joint_kwargs(**kwargs),
-                chainname,
-                logger if logger is not None else "",
-            ]
-        )
-
-    elif method == "mutselaaomega":
-        if "-chainname" in kwargs:
-            chainname = kwargs["-chainname"]
-            del kwargs["-chainname"]
-        cmd = " ".join(
-            [
-                DOCKER_RUN,
-                mapping,
-                image,
-                "mutselaaomega",
-                joint_kwargs(**kwargs),
-                chainname,
-                logger if logger is not None else "",
-            ]
-        )
-    elif method == "readmutselomega":
+    elif method == "readmutselaaomega" or method == "readmutselomega":
         if "-chainname" in kwargs:
             chainname = kwargs["-chainname"]
             del kwargs["-chainname"]
@@ -758,6 +727,31 @@ def generate_simu_cmd(
             ]
         )
 
+    elif method == "BayescodeSimuMutSelC":
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "BayescodeSimuMutSelC",
+                joint_kwargs(**kwargs),
+                config_filename,
+                logger if logger is not None else "",
+            ]
+        )
+
+    elif method == "BayescodeSimuMutSelAA":
+        cmd = " ".join(
+            [
+                DOCKER_RUN,
+                mapping,
+                image,
+                "BayescodeSimuMutSelAA",
+                joint_kwargs(**kwargs),
+                config_filename,
+                logger if logger is not None else "",
+            ]
+        )
     else:
         raise NotImplementedError(
             "ERROR: simulation method %s not implemented" % method
