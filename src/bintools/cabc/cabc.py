@@ -20,6 +20,8 @@ def generate_cabc_conf(method: str, **kwargs) -> List[str]:
         "CodonMutSelFinite",
         "CodonMutSelSBDP",
         "AACodonMutSelMultipleOmega",
+        "CodonMutSelMultipleOmega",
+        "AAMutSelMultipleOmega",
     ]:
         conf = []
         if "ss" in kwargs:
