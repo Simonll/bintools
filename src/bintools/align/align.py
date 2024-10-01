@@ -44,8 +44,8 @@ class ali:
         return self.dict_of_seq
 
     def get_site_i(self, i) -> Dict[str, Dict[int, str]]:
-        assert i >= 0, "error site i is negative"
-        assert i < self.get_n_site, "site i greater than the number of sites"
+        assert i >= 0, "error, site i is negative"
+        assert i < self.get_n_site, "error, site i is greater than the number of sites"
         return (
             pd.DataFrame.from_dict(data=self.dict_of_seq, orient="index")
             .iloc[:, i]
