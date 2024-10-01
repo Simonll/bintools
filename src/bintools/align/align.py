@@ -43,6 +43,13 @@ class ali:
     def get_dict_of_seq(self) -> Dict[str, Dict[int, str]]:
         return self.dict_of_seq
 
+    def get_site_i(self, i) -> Dict[str, Dict[int, str]]:
+        return (
+            pd.DataFrame.from_dict(data=self.dict_of_seq, orient="index")
+            .iloc[:, i]
+            .to_dict()
+        )
+
     def __iter__(self) -> Iterator[Any]:
         yield self.dict_of_seq.items()
 
