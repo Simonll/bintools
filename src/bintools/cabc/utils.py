@@ -32,7 +32,7 @@ def transform(trans_name: str, df: pd.DataFrame) -> Optional[BaseEstimator]:
         pre_process.fit(df)
     elif trans_name == "log10":
         pre_process = FunctionTransformer(
-            func=np.log10, inverse_func=lambda x: np.power(x, 10)
+            func=np.log10, inverse_func=lambda x: np.power(10, x)
         )
         pre_process.fit(df)
     elif trans_name == "none":

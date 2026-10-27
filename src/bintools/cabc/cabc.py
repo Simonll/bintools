@@ -33,12 +33,12 @@ def generate_cabc_conf(method: str, **kwargs) -> List[str]:
         if "sampling" in kwargs:
             conf += ["#SAMPLING" + "\t" + kwargs["sampling"]]
         if "nrun" in kwargs:
-            conf += ["#RUN" + "\t" + kwargs["nrun"]]
+            conf += ["#RUN" + "\t" + str(kwargs["nrun"])]
         if "nthreads" in kwargs:
-            conf += ["#NTHREADS" + "\t" + kwargs["nthreads"]]
+            conf += ["#NTHREADS" + "\t" + str(kwargs["nthreads"])]
         if "output" in kwargs:
             conf += ["#OUTPUT" + "\t" + kwargs["output"]]
-        if "align" in kwargs and "chainname" in kwargs:
+        if "localparam" in kwargs and "align" in kwargs and "chainname" in kwargs:
             conf += [
                 "\t".join(
                     ["#LOCALPARAM"]
@@ -133,7 +133,7 @@ def generate_files_r_abc(
         inplace=True,
     )
     print("realdata table ", np.shape(df_true_ss))
-    random_row: int = np.random.randint(0, df_true_ss.shape[0] - 1)
+    random_row: int = np.random.randint(0, df_true_ss.shape[0])
     df_true_ss = df_true_ss.iloc[random_row : random_row + 1, :]
     print("realdata choosing randomly one row ", df_true_ss.shape)
 
