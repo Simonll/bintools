@@ -37,12 +37,12 @@ def compute_delta_time(t0: datetime.datetime, msg: str = "") -> str:
     if delta_time > 120:
         delta_time = delta_time / 60
         unit_of_time = "min"
-    elif delta_time < 1e-2:
-        delta_time = delta_time * 1000
-        unit_of_time = "ms"
     elif delta_time < 1e-4:
         delta_time = delta_time * 1e6
         unit_of_time = "us"
+    elif delta_time < 1e-2:
+        delta_time = delta_time * 1000
+        unit_of_time = "ms"
 
     print("%.2f %s spent in %s" % (delta_time, unit_of_time, msg))
     return "%.2f%s" % (delta_time, unit_of_time)
