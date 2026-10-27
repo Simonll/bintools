@@ -26,7 +26,6 @@ def bt_patch(monkeypatch, delta_us):
     )
 
 
-@pytest.mark.xfail(reason="fix pending")
 def test_delta_time_microseconds(monkeypatch):
     bt_patch(monkeypatch, 50)
     assert bt_utils.compute_delta_time(BT_T0) == "50.00us"

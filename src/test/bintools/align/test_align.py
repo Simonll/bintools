@@ -11,7 +11,6 @@ from bintools.align.align import read_fasta
 from bintools.align.align import read_phylip
 from bintools.align.align import write_fasta_from_align
 
-FIX = pytest.mark.xfail(reason="fix pending")
 
 
 def bt_make_ali(seqs):
@@ -27,7 +26,6 @@ def bt_seq_str(seq):
 BT_SEQS = {"a": "ACGT", "b": "TGCA", "c": "AAAA"}
 
 
-@FIX
 def test_get_site_i():
     a = bt_make_ali(BT_SEQS)
     assert a.get_site_i(1) == {"a": "C", "b": "G", "c": "A"}
@@ -39,20 +37,17 @@ def test_get_site_i_negative():
         bt_make_ali(BT_SEQS).get_site_i(-1)
 
 
-@FIX
 def test_get_site_i_too_large():
     with pytest.raises(AssertionError):
         bt_make_ali(BT_SEQS).get_site_i(4)
 
 
-@FIX
 def test_iter_yields_taxon_seq_pairs():
     a = bt_make_ali(BT_SEQS)
     got = {sp: bt_seq_str(seq) for sp, seq in a}
     assert got == BT_SEQS
 
 
-@FIX
 def test_find_missing_col_with_gaps():
     a = bt_make_ali({"s1": "ATGAAA---CCC", "s2": "ATGAAAGGGCCC"})
     kept = find_missing_col(a, ["---"], ratio=1)
@@ -60,7 +55,6 @@ def test_find_missing_col_with_gaps():
     assert all(0 <= k < 4 for k in kept)
 
 
-@FIX
 def test_find_missing_col_no_gaps_keeps_all_codons():
     a = bt_make_ali({"s1": "ATGAAACCC", "s2": "ATGAAAGGG"})
     assert find_missing_col(a, ["---"], ratio=1) == [0, 1, 2]
@@ -73,7 +67,6 @@ def test_read_fasta_simple():
     assert bt_seq_str(a.get_dict_of_seq()["y"]) == "TGCA"
 
 
-@FIX
 def test_read_fasta_wrapped():
     a = read_fasta(io.StringIO(">x\nACGT\nAAAA\n>y\nTGCA\nCCCC\n"))
     d = a.get_dict_of_seq()
@@ -88,7 +81,6 @@ def bt_msa():
     )
 
 
-@FIX
 def test_write_fasta_twice_no_duplicates(tmp_path):
     f = str(tmp_path / "out.fa")
     assert write_fasta_from_align(f, bt_msa())
@@ -111,7 +103,6 @@ def test_read_phylip_simple():
     assert bt_seq_str(a.get_dict_of_seq()["a"]) == "ACGT"
 
 
-@FIX
 def test_read_phylip_empty_raises_clean_error():
     with pytest.raises((ValueError, RuntimeError, EOFError)):
         read_phylip(io.StringIO(""))
