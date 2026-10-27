@@ -246,6 +246,7 @@ def generate_phylobayes_cmd(
             ]
         )
     if method == "ppred":
+        chainname = ""
         if "-chainname" in kwargs:
             chainname = kwargs["-chainname"]
             del kwargs["-chainname"]
@@ -261,6 +262,7 @@ def generate_phylobayes_cmd(
             ]
         )
     if method == "ancestral":
+        chainname = ""
         if "-chainname" in kwargs:
             chainname = kwargs["-chainname"]
             del kwargs["-chainname"]
@@ -331,10 +333,15 @@ def generate_pb_mpi_cmd(
         )
 
     elif method == "readpb_mpi":
+        np = os.cpu_count()
+        if np is None:
+            np = 1
+
         if "-np" in kwargs:
             np = kwargs["-np"]
             del kwargs["-np"]
 
+        chainname = ""
         if "-chainname" in kwargs:
             chainname = kwargs["-chainname"]
             del kwargs["-chainname"]
@@ -536,7 +543,7 @@ def generate_blast_cmd(
         cmd = " ".join([DOCKER_RUN, mapping, image, "blastn", joint_kwargs(**kwargs)])
 
     elif method == "tblastx":
-        cmd = " ".join([DOCKER_RUN, mapping, image, "blastx", joint_kwargs(**kwargs)])
+        cmd = " ".join([DOCKER_RUN, mapping, image, "tblastx", joint_kwargs(**kwargs)])
 
     elif method == "blastp":
         cmd = " ".join([DOCKER_RUN, mapping, image, "blastp", joint_kwargs(**kwargs)])
