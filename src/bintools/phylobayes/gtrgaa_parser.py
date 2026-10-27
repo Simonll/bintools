@@ -319,7 +319,7 @@ class posterior_GTRGAA(posterior):
 
         dict_of_params.update(
             {
-                "rho_" + rho: self.list_of_phi[u_int][i]
+                "rho_" + rho: self.list_of_rho[u_int][i]
                 for i, rho in enumerate(self.list_of_rhoID)
             }
         )
