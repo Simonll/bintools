@@ -25,6 +25,10 @@ def compute_XpY(seq: str, x: str, y: str) -> Dict[str, float]:
         if (i == x.upper() or i == x.lower()) and (j == y.upper() or j == y.lower()):
             dict_of_stats[XpY] += 1
 
+    # NB: normalised by (number of ACGT) - 1, whereas compute_CpG normalises by
+    # len(seq) - 1; the two are not comparable when the sequence has gaps/N.
+    if dict_of_stats["acgt"] <= 1:
+        return {XpY: float("nan")}
     return {XpY: (dict_of_stats[XpY] / (dict_of_stats["acgt"] - 1))}
 
 
@@ -55,6 +59,9 @@ def compute_XpY_oe(seq: str, x: str, y: str) -> Dict[str, float]:
         if i == y.upper() or i == y.lower():
             dict_of_stats[y] += 1
 
+    # undefined (NaN) when the sequence is too short or x or y is absent
+    if dict_of_stats["acgt"] <= 1 or dict_of_stats[x] == 0 or dict_of_stats[y] == 0:
+        return {XpY: float("nan")}
     return {
         XpY: (dict_of_stats[XpY] / (dict_of_stats["acgt"] - 1))
         / (dict_of_stats[x] * dict_of_stats[y] / (dict_of_stats["acgt"] ** 2))
@@ -62,6 +69,13 @@ def compute_XpY_oe(seq: str, x: str, y: str) -> Dict[str, float]:
 
 
 def compute_CpG(seq: str) -> Dict[str, float]:
+    """Frequencies of CpG and TpA dinucleotides (only observed ones are returned).
+
+    CpG/TpA are normalised by len(seq) - 1 (all adjacent pairs). The per-frame
+    statistics (_12, _23, _31) are normalised by the number of pairs available
+    in that frame (~len/3). Not comparable with compute_XpY, which divides by
+    (number of ACGT) - 1.
+    """
     dict_of_stats: Dict[str, float] = {}
 
     for i, j in zip(
@@ -125,4 +139,13 @@ def compute_CpG(seq: str) -> Dict[str, float]:
             else:
                 dict_of_stats["TpA_31"] = 1
 
-    return {k: v / (len(seq) - 1) for k, v in dict_of_stats.items()}
+    n = len(seq)
+    # number of dinucleotide pairs available in each frame
+    npairs = {"": n - 1}
+    for f, suffix in ((0, "_12"), (1, "_23"), (2, "_31")):
+        npairs[suffix] = min(len(range(f, n, 3)), len(range(f + 1, n, 3)))
+
+    return {
+        k: v / npairs[k[k.find("_") :] if "_" in k else ""]
+        for k, v in dict_of_stats.items()
+    }
