@@ -1,6 +1,6 @@
 import abc
 from io import TextIOWrapper
-from itertools import takewhile
+from itertools import islice
 from pathlib import Path
 from typing import Dict
 from typing import Iterator
@@ -38,6 +38,18 @@ class posterior:
     def __sizeof__(self) -> int:
         return len(self.list_of_sampleID)
 
+    def _draw_index(self) -> int:
+        """
+        draws a sample index in [burnin, number of samples)
+        """
+        n: int = len(self.list_of_rho)
+        if self.burnin >= n:
+            raise ValueError(
+                "burnin (%d) >= number of samples (%d): nothing to sample"
+                % (self.burnin, n)
+            )
+        return int(np.random.randint(self.burnin, n))
+
     @abc.abstractmethod
     def parse_mcmc(self, mcmc_path: Path, burnin: int):
         """
@@ -54,11 +66,9 @@ class posterior:
 
 
 def chunck_chain(lines, chunck_size):
-    for i, j in zip(
-        range(0, (len(lines) - chunck_size), chunck_size),
-        range(chunck_size, len(lines), chunck_size),
-    ):
-        yield lines[i:j]
+    # yields every complete chunk (a trailing partial chunk is dropped)
+    for i in range(0, len(lines) - chunck_size + 1, chunck_size):
+        yield lines[i : i + chunck_size]
 
 
 class posterior_MGTRtsCpG_SNCatAA(posterior):
@@ -191,7 +201,7 @@ class posterior_MGTRtsCpG_SNCatAA(posterior):
         """
         samples paramter values from burnin to end of mcmc and return dictionary
         """
-        u_int: int = np.random.randint(self.burnin, len(self.list_of_rho))
+        u_int: int = self._draw_index()
         dict_of_params: Dict[str, Union[float, str]] = {
             "phi_A": self.list_of_phi[u_int][0],
             "phi_C": self.list_of_phi[u_int][1],
@@ -289,7 +299,7 @@ class posterior_M0_GTR(posterior):
         """
         samples paramter values from burnin to end of mcmc and return dictionary
         """
-        u_int: int = np.random.randint(self.burnin, len(self.list_of_rho))
+        u_int: int = self._draw_index()
         dict_of_params: Dict[str, Union[float, str]] = {
             "phi_A": self.list_of_phi[u_int][0],
             "phi_C": self.list_of_phi[u_int][1],
@@ -311,7 +321,7 @@ class posterior_M0_GTR(posterior):
         """
         samples paramter values from burnin to end of mcmc and return dictionary with GTR transformed to HKY
         """
-        u_int: int = np.random.randint(self.burnin, len(self.list_of_rho))
+        u_int: int = self._draw_index()
         tv: float = np.sum([self.list_of_rho[u_int][i] for i in [0, 2, 3, 5]])
         ts: float = np.sum([self.list_of_rho[u_int][i] for i in [1, 4]])
         ts /= 2.0
@@ -397,22 +407,23 @@ class posterior_M0_GTR(posterior):
             with open(str(input_file), "r") as file_handler:
                 lines: Iterator[str] = iter(file_handler.readlines())
                 sampleID: int = 0
-                for line in takewhile(lambda x: x is not None, lines):
-                    list_of_trees += [line.strip()]
-
-                    line = next(lines)
+                for line in lines:
+                    if not line.strip():
+                        # blank line (typically trailing): end of samples
+                        break
+                    record = [line] + list(islice(lines, 3))
+                    if len(record) < 4:
+                        # truncated last record: keep the samples already read
+                        break
+                    list_of_trees += [record[0].strip()]
                     list_of_phi += [
-                        np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
+                        np.fromstring(record[1].strip(), dtype=float, sep="\t").tolist()
                     ]
-
-                    line = next(lines)
                     list_of_rho += [
-                        np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
+                        np.fromstring(record[2].strip(), dtype=float, sep="\t").tolist()
                     ]
-
-                    line = next(lines)
                     list_of_omega += [
-                        np.fromstring(line.strip(), dtype=float, sep="\t").tolist()
+                        np.fromstring(record[3].strip(), dtype=float, sep="\t").tolist()
                     ]
                     list_of_sampleID += [sampleID]
                     sampleID += 1
