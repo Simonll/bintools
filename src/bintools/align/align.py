@@ -43,9 +43,9 @@ class ali:
     def get_dict_of_seq(self) -> Dict[str, Dict[int, str]]:
         return self.dict_of_seq
 
-    def get_site_i(self, i) -> Dict[str, Dict[int, str]]:
+    def get_site_i(self, i) -> Dict[str, str]:
         assert i >= 0, "error, site i is negative"
-        assert i < self.get_n_site, "error, site i is greater than the number of sites"
+        assert i < self.get_n_site(), "error, site i is greater than the number of sites"
         return (
             pd.DataFrame.from_dict(data=self.dict_of_seq, orient="index")
             .iloc[:, i]
@@ -53,7 +53,7 @@ class ali:
         )
 
     def __iter__(self) -> Iterator[Any]:
-        yield self.dict_of_seq.items()
+        yield from self.dict_of_seq.items()
 
     def get_biopython_align(self, padding: bool = False) -> MultipleSeqAlignment:
         records: List[SeqRecord] = []
@@ -161,13 +161,8 @@ def write_phylip_line(fh: IO[Any], defline: str, content: str) -> bool:
 
 def write_fasta_from_align(filename: str, align: MultipleSeqAlignment) -> bool:
     try:
-        for record in align:
-            if os.path.exists(filename):
-                append_write = "a"  # append if already exists
-            else:
-                append_write = "w"  # make a new file if not
-
-            with open(filename, append_write) as fh:
+        with open(filename, "w") as fh:
+            for record in align:
                 write_fasta(fh=fh, defline=record.id, content=str(record.seq))
         return True
     except Exception as e:
@@ -189,40 +184,40 @@ def write_phylip(filename: str, align: MultipleSeqAlignment):
         return False
 
 
-def read_ali(fh: IO[Any]):
-    lines: List[str] = fh.readlines()
-    lines: Iterator[str] = iter(lines)
-    dict_of_seq: Dict[str, Dict[int, str]] = {}
+def _parse_fasta_lines(
+    lines: List[str], skip_comments: bool = False
+) -> Dict[str, Dict[int, str]]:
+    """Parse FASTA lines (wrapped or not); a defline without sequence gives an empty sequence."""
+    seqs: Dict[str, List[str]] = {}
+    current = None
     for l in lines:
-        if l.startswith("#"):
-            pass
-        elif l.startswith(">"):
-            defline = l.strip()[1:]
-            seq = next(lines)
-            dict_of_seq[defline.strip()] = {
-                i: j for i, j in enumerate(list(seq.strip()))
-            }
+        if skip_comments and l.startswith("#"):
+            continue
+        if l.startswith(">"):
+            current = l.strip()[1:].strip()
+            seqs[current] = []
+        elif current is not None and l.strip():
+            seqs[current].append(l.strip())
+    return {
+        defline: {i: j for i, j in enumerate("".join(parts))}
+        for defline, parts in seqs.items()
+    }
+
+
+def read_ali(fh: IO[Any]):
+    dict_of_seq = _parse_fasta_lines(fh.readlines(), skip_comments=True)
     df: pd.DataFrame = pd.DataFrame.from_dict(data=dict_of_seq, orient="index")
 
     return ali(
         n_site=df.shape[1],
         n_taxa=df.shape[0],
         dict_of_seq=dict_of_seq,
-        genetic_code="standard",
+        genetic_code="Standard",
     )
 
 
 def read_fasta(fh: IO[Any]) -> ali:
-    lines: List[str] = fh.readlines()
-    lines_iter: Iterator[str] = iter(lines)
-    dict_of_seq: Dict[str, Dict[int, str]] = {}
-    for l in lines_iter:
-        if l.startswith(">"):
-            defline = l.strip()[1:]
-            seq = next(lines_iter)
-            dict_of_seq[defline.strip()] = {
-                i: j for i, j in enumerate(list(seq.strip()))
-            }
+    dict_of_seq = _parse_fasta_lines(fh.readlines())
     df: pd.DataFrame = pd.DataFrame.from_dict(data=dict_of_seq, orient="index")
 
     return ali(
@@ -234,15 +229,25 @@ def read_fasta(fh: IO[Any]) -> ali:
 
 
 def read_phylip(fh: TextIO) -> ali:
-    lines: List[str] = fh.readlines()
+    lines: List[str] = [l for l in fh.readlines() if l.strip()]
+    if not lines:
+        raise ValueError("empty phylip file")
     n_taxa, n_site = lines[0].strip().split()
     dict_of_seq: Dict[str, Dict[int, str]] = {}
     for l in range(1, len(lines)):
-        if lines[l].strip():
-            sp_name, seq = lines[l].strip().split()
-            dict_of_seq[sp_name.strip()] = {
-                i: j for i, j in enumerate(list(seq.strip()))
-            }
+        sp_name, seq = lines[l].strip().split()
+        dict_of_seq[sp_name.strip()] = {i: j for i, j in enumerate(list(seq.strip()))}
+
+    if len(dict_of_seq) != int(n_taxa):
+        raise ValueError(
+            "phylip header announces %s taxa but %d found" % (n_taxa, len(dict_of_seq))
+        )
+    for sp_name, d in dict_of_seq.items():
+        if len(d) != int(n_site):
+            raise ValueError(
+                "phylip header announces %s sites but %s has %d"
+                % (n_site, sp_name, len(d))
+            )
 
     return ali(
         n_site=int(n_site),
@@ -259,7 +264,7 @@ def find_missing_col(
         if len(i) != 3:
             raise RuntimeError
 
-    codon_missing_count: Dict[int, int] = {i: 0 for i in range(ali.get_n_site())}
+    codon_missing_count: Dict[int, int] = {i: 0 for i in range(ali.get_n_site() // 3)}
 
     for sp, dict_of_seq in ali:
         seq: str = "".join(list(dict_of_seq.values()))
@@ -270,7 +275,8 @@ def find_missing_col(
             sub_sample(seq, start=2, stop=len(seq), step=3),
         ):
             if "".join([i, j, k]) in tripplet_patterns:
-                codon_missing_count[codon] += 1
+                if codon in codon_missing_count:
+                    codon_missing_count[codon] += 1
     site_to_keep: List[int] = []
     for l, m in codon_missing_count.items():
         if m <= (1 - ratio) * ali.get_n_taxa():
