@@ -3,6 +3,7 @@ from typing import List
 
 import numpy as np
 import scipy as sc
+import scipy.stats
 
 
 def prior_M7M8_mix(N: int, mixture: List[float]) -> Dict[int, float]:
@@ -24,7 +25,9 @@ def prior_M7M8(N: int, p_0: float, p: float, q: float, l: float) -> Dict[int, fl
     for i in range(N):
         u_float: float = sc.stats.uniform(0, 1).rvs()
         if u_float > p_0:
-            dict_of_omega[i + 1] = sc.stats.expon(l).rvs()
+            # l is the rate (lambda) of the exponential: scale = 1 / l.
+            # (expon(l) would set loc=l, i.e. l + Exp(1), which is not intended)
+            dict_of_omega[i + 1] = sc.stats.expon(scale=1.0 / l).rvs()
         else:
             dict_of_omega[i + 1] = sc.stats.beta(p, q).rvs()
     return dict_of_omega
