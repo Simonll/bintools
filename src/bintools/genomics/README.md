@@ -9,6 +9,7 @@ Genomics / transposable-element (TE) tools. Each module is importable
 |---|---|---|---|
 | `te_fraction_ucsc.py` | `genotypic_te.py` | TE fraction per genome from UCSC RepeatMasker tracks (`chromInfo` + `rmsk`), for a manifest of UCSC assemblies → `te_fraction.tsv` | stdlib |
 | `te_fraction_repeatmasker.py` | `run_repeatmasker_te.py` | Download an NCBI (GCF/GCA) genome, run RepeatMasker, compute TE fraction → appends to `te_fraction_repeatmasker.tsv` | stdlib (+ `RepeatMasker` binary) |
+| `te_fraction_edta.py` | — | Run **EDTA** (de novo TE annotation) on a genome, compute TE fraction from its `.out` → appends to `te_fraction_edta.tsv`. `--step all` (de novo, slow) vs `--step anno` (fast, needs an existing `*.EDTA.TElib.fa`) | stdlib (+ `EDTA.pl` + env with RepeatModeler/LTR_retriever/rmblast) |
 | `consolidate_te_fraction.py` | same | Parse an already-finished RepeatMasker `.out` and append its TE fraction to the consolidated TSV (no re-run) | stdlib |
 | `cleanup_rm.py` | same | Post-RepeatMasker cleanup of regenerable intermediates (dry-run unless `--yes`; refuses without a final `.out` unless `--force`) | stdlib |
 | `go_enrichment_stable_cpg.py` | same | GO enrichment of genes ranked by CpG-rate variance: ORA via g:Profiler REST + preranked GSEA | pandas, requests, gseapy |
