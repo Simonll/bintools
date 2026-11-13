@@ -127,7 +127,9 @@ def main() -> int:
     ap.add_argument("--out", default="outputs")
     ap.add_argument("--workdir", default=None)
     ap.add_argument("--edta", default="EDTA.pl", help="path to EDTA.pl")
-    ap.add_argument("--step", choices=["all", "anno"], default="anno")
+    ap.add_argument("--step", choices=["all", "anno"], default="all",
+                    help="all=de novo (construit la librairie, lent) ; "
+                         "anno=rapide (exige une *.EDTA.TElib.fa existante)")
     ap.add_argument("--sensitive", type=int, choices=[0, 1], default=0)
     ap.add_argument("--threads", type=int, default=8)
     ap.add_argument("--anno", type=int, default=1)
