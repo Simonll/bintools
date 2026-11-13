@@ -34,6 +34,7 @@ RepeatMasker. Non-TE classes (Simple_repeat, Satellite, ...) are excluded.
 
 import argparse
 import glob
+import os
 import shutil
 import subprocess
 import sys
@@ -126,7 +127,17 @@ def main() -> int:
     ap.add_argument("--group", default="")
     ap.add_argument("--out", default="outputs")
     ap.add_argument("--workdir", default=None)
-    ap.add_argument("--edta", default="EDTA.pl", help="path to EDTA.pl")
+    ap.add_argument(
+        "--edta",
+        default=os.environ.get("EDTA_PL")
+        or (
+            str(Path(os.environ["EDTA_ENV"]) / "bin" / "EDTA.pl")
+            if os.environ.get("EDTA_ENV")
+            else "EDTA.pl"
+        ),
+        help="path to EDTA.pl (default: $EDTA_PL, else $EDTA_ENV/bin/EDTA.pl, "
+        "else EDTA.pl from PATH)",
+    )
     ap.add_argument("--step", choices=["all", "anno"], default="all",
                     help="all=de novo (construit la librairie, lent) ; "
                          "anno=rapide (exige une *.EDTA.TElib.fa existante)")
